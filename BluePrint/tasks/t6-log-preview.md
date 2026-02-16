@@ -1,0 +1,9 @@
+---
+title: "ジャーナル・プレビューの実装"
+phase: "Phase 3: Advanced Insights"
+status: "pending"
+priority: "medium"
+order: 2
+---
+
+最新ログの冒頭をダッシュボードに表示し、コンテキストを即座に把握できるようにする。
