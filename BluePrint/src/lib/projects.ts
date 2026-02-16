@@ -22,6 +22,7 @@ export interface Project {
     progress: number;
     latestLog?: string;
     latestLogPreview?: string;
+    dashboardUrl?: string;
 }
 
 function parseFrontmatter(content: string) {
@@ -109,6 +110,16 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                 const doneTasks = tasks.filter(t => t.status === 'done').length;
                 const progress = tasks.length > 0 ? (doneTasks / tasks.length) * 100 : 0;
 
+                // Dashboard URL Discovery
+                let dashboardUrl = metadata.dashboard_url || '';
+                if (!dashboardUrl) {
+                    const localDashboardPath = path.join(projectPath, 'dashboard', 'index.html');
+                    if (fs.existsSync(localDashboardPath)) {
+                        // Use the public symlink path for serving
+                        dashboardUrl = `/projects_root/${entry.name}/dashboard/index.html`;
+                    }
+                }
+
                 projects.push({
                     id: metadata.id || entry.name,
                     name: metadata.name || entry.name,
@@ -118,7 +129,8 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                     tasks,
                     progress,
                     latestLog,
-                    latestLogPreview
+                    latestLogPreview,
+                    dashboardUrl
                 });
             }
         }

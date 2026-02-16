@@ -101,7 +101,13 @@ const getCategoryStats = (cat: string) => {
 					<div class="project-meta">
 						<span class={`category-badge cat-${project.category}`}>{project.category}</span>
 						<span class="system-label">PROJECT_MODULE</span>
-						<h2>{project.name}</h2>
+						{project.dashboardUrl ? (
+							<a href={project.dashboardUrl} class="project-link" target="_blank">
+								<h2>{project.name} <span class="link-icon">↗</span></h2>
+							</a>
+						) : (
+							<h2>{project.name}</h2>
+						)}
 					</div>
 					<ProgressBar 
 						progress={project.progress} 
@@ -275,6 +281,34 @@ const getCategoryStats = (cat: string) => {
 		display: flex;
 		flex-direction: column;
 		margin-bottom: 1rem;
+	}
+
+	.project-link {
+		text-decoration: none;
+		color: inherit;
+		display: inline-block;
+		transition: transform 0.2s ease;
+	}
+
+	.project-link:hover {
+		transform: translateX(4px);
+	}
+
+	.project-link h2 {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.link-icon {
+		font-size: 0.8rem;
+		opacity: 0;
+		color: var(--accent);
+		transition: opacity 0.2s ease;
+	}
+
+	.project-link:hover .link-icon {
+		opacity: 1;
 	}
 
 	.category-badge, .filter-btn {
