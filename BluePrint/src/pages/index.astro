@@ -120,6 +120,15 @@ const getCategoryStats = (cat: string) => {
 						<div class="latest-log">
 							<span class="log-title">LATEST_LOG: {project.latestLog}</span>
 							{project.latestLogPreview && <p class="log-content">{project.latestLogPreview}</p>}
+							{project.latestLogFull && (
+								<button 
+									class="view-log-btn" 
+									data-log-title={project.latestLog} 
+									data-log-body={project.latestLogFull}
+								>
+									[VIEW_FULL_LOG]
+								</button>
+							)}
 						</div>
 					)}
 				</div>
@@ -151,6 +160,19 @@ const getCategoryStats = (cat: string) => {
 			<span>{new Date().toISOString()}</span>
 		</div>
 	</footer>
+
+	<!-- Journal Modal -->
+	<div id="journal-modal" class="modal-overlay">
+		<div class="modal-container">
+			<header class="modal-header">
+				<h2 id="modal-log-title">LOG_TITLE</h2>
+				<button id="close-modal" class="close-btn">CLOSE [X]</button>
+			</header>
+			<div class="modal-body">
+				<pre id="modal-log-content"></pre>
+			</div>
+		</div>
+	</div>
 </Layout>
 
 <style>
@@ -424,6 +446,98 @@ const getCategoryStats = (cat: string) => {
 		color: var(--fg);
 	}
 
+	.view-log-btn {
+		background: none;
+		border: 1px solid var(--muted);
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 0.6rem;
+		padding: 2px 8px;
+		margin-top: 0.8rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-transform: uppercase;
+	}
+
+	.view-log-btn:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	/* Modal Styles */
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.85);
+		backdrop-filter: blur(8px);
+		display: none;
+		justify-content: center;
+		align-items: center;
+		z-index: 1000;
+		padding: 2rem;
+	}
+
+	.modal-overlay.active {
+		display: flex;
+	}
+
+	.modal-container {
+		background: #0f1115;
+		border: 1px solid var(--accent);
+		width: 100%;
+		max-width: 800px;
+		max-height: 80vh;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1.5rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.modal-header h2 {
+		font-size: 1rem;
+		margin: 0;
+		color: var(--accent);
+	}
+
+	.close-btn {
+		background: none;
+		border: none;
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		cursor: pointer;
+	}
+
+	.close-btn:hover {
+		color: #ff4d4d;
+	}
+
+	.modal-body {
+		padding: 2rem;
+		overflow-y: auto;
+		flex-grow: 1;
+	}
+
+	#modal-log-content {
+		white-space: pre-wrap;
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		line-height: 1.6;
+		color: var(--fg);
+		opacity: 0.9;
+	}
+
 	.task-list {
 		display: flex;
 		flex-direction: column;
@@ -501,5 +615,37 @@ const getCategoryStats = (cat: string) => {
 	searchInput?.addEventListener('input', (e) => {
 		searchQuery = (e.target as HTMLInputElement).value;
 		updateFilters();
+	});
+
+	// Modal Logic
+	const modalOverlay = document.getElementById('journal-modal');
+	const closeModal = document.getElementById('close-modal');
+	const modalTitle = document.getElementById('modal-log-title');
+	const modalContent = document.getElementById('modal-log-content');
+	const viewLogBtns = document.querySelectorAll('.view-log-btn');
+
+	viewLogBtns.forEach(btn => {
+		btn.addEventListener('click', () => {
+			const title = btn.getAttribute('data-log-title');
+			const body = btn.getAttribute('data-log-body');
+			
+			if (modalTitle) modalTitle.innerText = title || '';
+			if (modalContent) modalContent.innerText = body || '';
+			
+			modalOverlay?.classList.add('active');
+			document.body.style.overflow = 'hidden';
+		});
+	});
+
+	closeModal?.addEventListener('click', () => {
+		modalOverlay?.classList.remove('active');
+		document.body.style.overflow = 'auto';
+	});
+
+	modalOverlay?.addEventListener('click', (e) => {
+		if (e.target === modalOverlay) {
+			modalOverlay.classList.remove('active');
+			document.body.style.overflow = 'auto';
+		}
 	});
 </script>

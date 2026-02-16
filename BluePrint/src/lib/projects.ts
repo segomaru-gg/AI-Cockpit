@@ -22,6 +22,7 @@ export interface Project {
     progress: number;
     latestLog?: string;
     latestLogPreview?: string;
+    latestLogFull?: string;
     dashboardUrl?: string;
 }
 
@@ -88,6 +89,8 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                 const journalDir = path.join(projectPath, 'journal');
                 let latestLog = '';
                 let latestLogPreview = '';
+                let latestLogFull = '';
+
                 if (fs.existsSync(journalDir)) {
                     const logFiles = fs.readdirSync(journalDir)
                         .filter(f => f.endsWith('.md'))
@@ -101,6 +104,7 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                             const logFullContent = fs.readFileSync(path.join(journalDir, latestFileName), 'utf8');
                             const { content: logBody } = parseFrontmatter(logFullContent);
                             latestLogPreview = logBody.trim().slice(0, 150).replace(/\r?\n/g, ' ') + (logBody.length > 150 ? '...' : '');
+                            latestLogFull = logBody.trim();
                         } catch (e) {
                             console.error(`Failed to read log preview for ${latestFileName}`);
                         }
@@ -132,6 +136,7 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                     progress,
                     latestLog,
                     latestLogPreview,
+                    latestLogFull,
                     dashboardUrl
                 });
             }
