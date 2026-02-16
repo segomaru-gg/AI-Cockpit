@@ -4,9 +4,10 @@ interface Props {
 	status: 'pending' | 'doing' | 'done';
 	priority?: 'low' | 'medium' | 'high';
 	phase: string;
+	content?: string;
 }
 
-const { title, status, priority, phase } = Astro.props;
+const { title, status, priority, phase, content } = Astro.props;
 
 const statusEmoji = {
 	pending: '○',
@@ -15,7 +16,11 @@ const statusEmoji = {
 };
 ---
 
-<div class={`task-card ${status}`}>
+<div 
+	class={`task-card ${status}`} 
+	data-task-title={title} 
+	data-task-content={content}
+>
 	<div class="task-header">
 		<span class="status-marker">{statusEmoji[status]}</span>
 		<h3 class="task-title">{title}</h3>

@@ -141,6 +141,7 @@ const getCategoryStats = (cat: string) => {
 								status={task.status}
 								priority={task.priority}
 								phase={task.phase}
+								content={task.content}
 							/>
 						))
 					}
@@ -166,10 +167,23 @@ const getCategoryStats = (cat: string) => {
 		<div class="modal-container">
 			<header class="modal-header">
 				<h2 id="modal-log-title">LOG_TITLE</h2>
-				<button id="close-modal" class="close-btn">CLOSE [X]</button>
+				<button id="close-journal-modal" class="close-btn">CLOSE [X]</button>
 			</header>
 			<div class="modal-body">
 				<pre id="modal-log-content"></pre>
+			</div>
+		</div>
+	</div>
+
+	<!-- Task Detail Modal -->
+	<div id="task-modal" class="modal-overlay">
+		<div class="modal-container task-modal-container">
+			<header class="modal-header">
+				<h2 id="modal-task-title">TASK_TITLE</h2>
+				<button id="close-task-modal" class="close-btn">CLOSE [X]</button>
+			</header>
+			<div class="modal-body">
+				<div id="modal-task-content" class="markdown-body"></div>
 			</div>
 		</div>
 	</div>
@@ -618,33 +632,74 @@ const getCategoryStats = (cat: string) => {
 	});
 
 	// Modal Logic
-	const modalOverlay = document.getElementById('journal-modal');
-	const closeModal = document.getElementById('close-modal');
-	const modalTitle = document.getElementById('modal-log-title');
-	const modalContent = document.getElementById('modal-log-content');
+	const journalModal = document.getElementById('journal-modal');
+	const taskModal = document.getElementById('task-modal');
+	const closeJournalBtn = document.getElementById('close-journal-modal');
+	const closeTaskBtn = document.getElementById('close-task-modal');
+	
+	const modalLogTitle = document.getElementById('modal-log-title');
+	const modalLogContent = document.getElementById('modal-log-content');
 	const viewLogBtns = document.querySelectorAll('.view-log-btn');
 
+	const modalTaskTitle = document.getElementById('modal-task-title');
+	const modalTaskContent = document.getElementById('modal-task-content');
+	const taskCards = document.querySelectorAll('.task-card');
+
+	// Journal Modal Trigger
 	viewLogBtns.forEach(btn => {
-		btn.addEventListener('click', () => {
+		btn.addEventListener('click', (e) => {
+			e.stopPropagation();
 			const title = btn.getAttribute('data-log-title');
 			const body = btn.getAttribute('data-log-body');
 			
-			if (modalTitle) modalTitle.innerText = title || '';
-			if (modalContent) modalContent.innerText = body || '';
+			if (modalLogTitle) modalLogTitle.innerText = title || '';
+			if (modalLogContent) modalLogContent.innerText = body || '';
 			
-			modalOverlay?.classList.add('active');
+			journalModal?.classList.add('active');
 			document.body.style.overflow = 'hidden';
 		});
 	});
 
-	closeModal?.addEventListener('click', () => {
-		modalOverlay?.classList.remove('active');
+	// Task Modal Trigger (Click)
+	taskCards.forEach(card => {
+		card.addEventListener('click', () => {
+			const title = card.getAttribute('data-task-title');
+			const content = card.getAttribute('data-task-content');
+			
+			if (modalTaskTitle) modalTaskTitle.innerText = title || '';
+			// Simple formatting for task content (handle frontmatter removal if any)
+			if (modalTaskContent) {
+				const displayContent = content ? content.replace(/^---[\s\S]*?---\n?/, '').trim() : 'NO CONTENT';
+				modalTaskContent.innerText = displayContent;
+			}
+			
+			taskModal?.classList.add('active');
+			document.body.style.overflow = 'hidden';
+		});
+		
+		// Visual indicator for interactivity
+		(card as HTMLElement).style.cursor = 'pointer';
+	});
+
+	// Close Logic
+	closeJournalBtn?.addEventListener('click', () => {
+		journalModal?.classList.remove('active');
 		document.body.style.overflow = 'auto';
 	});
 
-	modalOverlay?.addEventListener('click', (e) => {
-		if (e.target === modalOverlay) {
-			modalOverlay.classList.remove('active');
+	closeTaskBtn?.addEventListener('click', () => {
+		taskModal?.classList.remove('active');
+		document.body.style.overflow = 'auto';
+	});
+
+	// Close on BG click
+	window.addEventListener('click', (e) => {
+		if (e.target === journalModal) {
+			journalModal?.classList.remove('active');
+			document.body.style.overflow = 'auto';
+		}
+		if (e.target === taskModal) {
+			taskModal?.classList.remove('active');
 			document.body.style.overflow = 'auto';
 		}
 	});

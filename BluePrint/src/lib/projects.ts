@@ -10,6 +10,7 @@ export interface Task {
     order: number;
     project: string;
     projectColor?: string;
+    content?: string;
 }
 
 export interface Project {
@@ -81,6 +82,7 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                             priority: taskData.priority || 'medium',
                             order: parseInt(taskData.order) || 999,
                             project: metadata.name || entry.name,
+                            content: content.trim(),
                         });
                     });
                 }
