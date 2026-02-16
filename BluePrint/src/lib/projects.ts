@@ -26,6 +26,7 @@ export interface Project {
     latestLogPreview?: string;
     latestLogFull?: string;
     dashboardUrl?: string;
+    activity: Record<string, number>; // YYYY-MM-DD -> count
 }
 
 function parseFrontmatter(content: string) {
@@ -130,6 +131,36 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                     }
                 }
 
+                const activity: Record<string, number> = {};
+
+                // Activity from journal (filenames like 0216_...)
+                if (fs.existsSync(journalDir)) {
+                    const logFiles = fs.readdirSync(journalDir).filter(f => f.endsWith('.md'));
+                    logFiles.forEach(file => {
+                        const dateMatch = file.match(/^(\d{2})(\d{2})_/);
+                        if (dateMatch) {
+                            const year = new Date().getFullYear(); // Assume current year for simple format
+                            const dateStr = `${year}-${dateMatch[1]}-${dateMatch[2]}`;
+                            activity[dateStr] = (activity[dateStr] || 0) + 1;
+                        } else {
+                            // Fallback to file date
+                            const stats = fs.statSync(path.join(journalDir, file));
+                            const dateStr = stats.mtime.toISOString().split('T')[0];
+                            activity[dateStr] = (activity[dateStr] || 0) + 1;
+                        }
+                    });
+                }
+
+                // Activity from tasks (modification dates)
+                if (fs.existsSync(tasksDir)) {
+                    const taskFiles = fs.readdirSync(tasksDir).filter(f => f.endsWith('.md'));
+                    taskFiles.forEach(file => {
+                        const stats = fs.statSync(path.join(tasksDir, file));
+                        const dateStr = stats.mtime.toISOString().split('T')[0];
+                        activity[dateStr] = (activity[dateStr] || 0) + 1;
+                    });
+                }
+
                 projects.push({
                     id: metadata.id || entry.name,
                     name: metadata.name || entry.name,
@@ -141,7 +172,8 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                     latestLog,
                     latestLogPreview,
                     latestLogFull,
-                    dashboardUrl
+                    dashboardUrl,
+                    activity
                 });
             }
         }

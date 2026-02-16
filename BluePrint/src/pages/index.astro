@@ -2,9 +2,19 @@
 import Layout from '../layouts/Layout.astro';
 import TaskCard from '../components/TaskCard.astro';
 import ProgressBar from '../components/ProgressBar.astro';
+import ActivityGrid from '../components/ActivityGrid.astro';
 import { discoverProjects } from '../lib/projects';
 
-const projects = await discoverProjects('../');
+const cockpitRoot = '/Users/ryosaigo/AI-Cockpit';
+const projects = await discoverProjects(cockpitRoot);
+
+// Global Activity Aggregation
+const globalActivity: Record<string, number> = {};
+projects.forEach(p => {
+	Object.entries(p.activity).forEach(([date, count]) => {
+		globalActivity[date] = (globalActivity[date] || 0) + count;
+	});
+});
 
 // Aggregate statistics
 const allTasks = projects.flatMap(p => p.tasks);
@@ -101,6 +111,11 @@ const getCategoryStats = (cat: string) => {
 			advice={getAdvice(overallProgress, allTasks)}
 		/>
 
+		<div class="header-activity">
+			<span class="system-label">GLOBAL_ACTIVITY_PULSE /</span>
+			<ActivityGrid activity={globalActivity} size="large" />
+		</div>
+
 		<nav class="filter-bar">
 			<div class="filter-main">
 				<span class="system-label">FILTER_DOMAIN /</span>
@@ -146,6 +161,10 @@ const getCategoryStats = (cat: string) => {
 						label="Project Progress"
 						advice={getAdvice(project.progress, project.tasks)}
 					/>
+					<div class="project-activity">
+						<span class="system-label">PROJECT_MOMENTUM /</span>
+						<ActivityGrid activity={project.activity} size="small" />
+					</div>
 					{project.latestLog && (
 						<div class="latest-log">
 							<span class="log-title">LATEST_LOG: {project.latestLog}</span>
@@ -328,6 +347,27 @@ const getCategoryStats = (cat: string) => {
 		display: flex;
 		gap: 0.5rem;
 		flex-wrap: wrap;
+	}
+
+	.header-activity {
+		margin: 1rem 0 2rem 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.8rem;
+	}
+
+	.project-activity {
+		margin: 1rem 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		border-top: 1px solid var(--border);
+		padding-top: 1rem;
+	}
+
+	.project-activity .system-label {
+		font-size: 0.6rem;
 	}
 
 	.blueprint-grid {
