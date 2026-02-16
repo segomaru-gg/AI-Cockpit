@@ -18,7 +18,7 @@ const { progress, label, advice } = Astro.props;
 	</div>
 	{advice && <div class="progress-advice">
 		<span class="agent-prompt">AGENT_ADVICE ></span>
-		<span class="advice-content">{advice}</span>
+		<span class={`advice-content ${advice.includes('[CRITICAL]') ? 'critical' : advice.includes('[URGENT]') ? 'urgent' : ''}`}>{advice}</span>
 	</div>}
 </div>
 
@@ -88,5 +88,16 @@ const { progress, label, advice } = Astro.props;
 	.advice-content {
 		color: var(--fg);
 		opacity: 0.9;
+	}
+
+	.advice-content.urgent {
+		color: #ffb86c;
+		font-weight: 700;
+	}
+
+	.advice-content.critical {
+		color: #ff5555;
+		font-weight: 700;
+		text-decoration: underline;
 	}
 </style>

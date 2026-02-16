@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cockpit Control | BluePrint Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --fg: #e0e0e0;
+            --accent: #219ebc;
+            --accent-glow: rgba(33, 158, 188, 0.3);
+            --muted: #888888;
+            --border: #1a1a1f;
+            --grid: rgba(255, 255, 255, 0.02);
+            --pending: #44475a;
+            --doing: #ffb86c;
+            --done: #50fa7b;
+            --critical: #ff5555;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--fg);
+            font-family: var(--font-mono);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding: 2rem;
+        }
+
+        /* Animated Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header System */
+        header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .project-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .system-tag {
+            font-size: 0.7rem;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0.2rem 0;
+        }
+
+        .project-id {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .status-chip {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        /* Stats Grid */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Sections */
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--muted);
+            border-left: 3px solid var(--accent);
+            padding-left: 0.8rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .active-threads {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .task-card {
+            background: rgba(26, 26, 31, 0.5);
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .task-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .task-phase {
+            font-size: 0.65rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .task-status {
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .task-status.doing {
+            color: var(--doing);
+            border: 1px solid var(--doing);
+        }
+
+        .task-status.done {
+            color: var(--done);
+            border: 1px solid var(--done);
+        }
+
+        .task-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.7rem;
+            color: var(--muted);
+        }
+
+        .deadline {
+            color: var(--doing);
+            font-weight: 700;
+        }
+
+        /* Journal Feed */
+        .chronicle-feed {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+        }
+
+        .log-entry {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            border-left: 1px dashed var(--muted);
+            position: relative;
+        }
+
+        .log-entry::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 0;
+            width: 7px;
+            height: 7px;
+            background: var(--muted);
+            border-radius: 50%;
+        }
+
+        .log-date {
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .log-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .log-preview {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 5rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            text-align: right;
+            font-size: 0.65rem;
+            color: var(--muted);
+        }
+
+        @media (max-width: 768px) {
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-bg"></div>
+
+    <div class="container">
+        <header>
+            <div class="project-meta">
+                <span class="system-tag">PROTOCOL_V1 // MODEL_DASHBOARD</span>
+                <h1>Cockpit Control</h1>
+                <span class="project-id">PID: BLUEPRINT_CORE_001</span>
+            </div>
+            <div class="status-chip">Evolving</div>
+        </header>
+
+        <section class="stats-summary">
+            <div class="stat-card">
+                <span class="stat-label">Project Accuracy</span>
+                <span class="stat-value">94.2%</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 94.2%"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Active Threads</span>
+                <span class="stat-value">3</span>
+                <span class="stat-label" style="margin-top: 1rem;">Total Tasks: 7</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Agent Advice</span>
+                <p style="font-size: 0.75rem; color: var(--fg); line-height: 1.4;">
+                    [URGENT] 近々の期限（02/18）が迫っています。現在の作業ピッチを上げてください。
+                </p>
+            </div>
+        </section>
+
+        <h2 class="section-title">Active Threads</h2>
+        <div class="active-threads">
+            <!-- Task 1 -->
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-phase">PHASE 3: ADVANCED INSIGHTS</span>
+                    <span class="task-status doing">DOING</span>
+                </div>
+                <span class="task-title">ジャーナル・プレビューの実装</span>
+                <div class="task-meta">
+                    <span>Priority: [MEDIUM]</span>
+                    <span class="deadline">DEAD: 2026/02/18</span>
+                </div>
+            </div>
+
+            <!-- Task 2 -->
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-phase">PHASE 3: ADVANCED INSIGHTS</span>
+                    <span class="task-status">PENDING</span>
+                </div>
+                <span class="task-title">カテゴリ別進捗サマリーの追加</span>
+                <div class="task-meta">
+                    <span>Priority: [MEDIUM]</span>
+                    <span class="deadline">DEAD: 2026/02/28</span>
+                </div>
+            </div>
+
+            <!-- Task 3 -->
+            <div class="task-card">
+                <div class="task-header">
+                    <span class="task-phase">PHASE 3: AGENT ORCHESTRATION</span>
+                    <span class="task-status done">DONE</span>
+                </div>
+                <span class="task-title">エージェント・ハンドブックの作成</span>
+                <div class="task-meta">
+                    <span>Priority: [HIGH]</span>
+                    <span>DEAD: 2026/02/16</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Chronicle (Latest Logs)</h2>
+        <section class="chronicle-feed">
+            <div class="log-entry">
+                <div class="log-date">2026.02.16</div>
+                <div class="log-title">0216_TASK_DETAIL_EXPANSION</div>
+                <div class="log-preview">タスクカードのクリックによる詳細表示機能を実装。エージェントのアドバイス精度を向上させた。</div>
+            </div>
+            <div class="log-entry">
+                <div class="log-date">2026.02.15</div>
+                <div class="log-title">0215_PROGRESS_WEIGHTING</div>
+                <div class="log-preview">Doingタスクを50%として計算する重み付けロジックを全システムに適用完了。</div>
+            </div>
+        </section>
+
+        <footer>
+            BLUEPRINT-OS // GENERATED_TIMESTAMP: 2026-02-16 17:20:51
+        </footer>
+    </div>
+</body>
+
+</html>
