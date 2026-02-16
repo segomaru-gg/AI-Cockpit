@@ -1,7 +1,7 @@
 ---
 title: "ジャーナル・プレビューの実装"
 phase: "Phase 3: Advanced Insights"
-status: "pending"
+status: "doing"
 priority: "medium"
 order: 2
 ---

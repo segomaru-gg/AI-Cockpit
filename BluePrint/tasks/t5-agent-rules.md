@@ -1,7 +1,7 @@
 ---
 title: "エージェント・ハンドブック (.cursorrules) の作成"
 phase: "Phase 3: Agent Orchestration"
-status: "doing"
+status: "done"
 priority: "high"
 order: 1
 ---

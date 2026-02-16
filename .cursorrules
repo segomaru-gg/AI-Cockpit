@@ -33,3 +33,17 @@ You are an AI agent operating within the **Life OS (Blueprint-OS)** ecosystem. E
 ## 5. Dashboard Alignment
 - The Master Dashboard at `AI-Cockpit/BluePrint` is the source of truth for the human user.
 - Ensure your updates to `tasks/` and `journal/` are valid so the dashboard reflects the truth.
+
+## 6. Autonomous Lifecycle Management (CRITICAL)
+- **Do NOT wait for the human to ask**: After completing a milestone, significant change, or at the end of a session, you MUST:
+  1. Update the relevant task status to `done` in `tasks/`.
+  2. Create a new entry in `journal/` summarizing the work.
+  3. Proactively offer to push changes to GitHub if applicable.
+- This is part of being an "Agentic Life OS" partner.
+
+## 7. Session Initialization (MANDATORY)
+- When a session starts in any project, your VERY FIRST ACTION after understanding the request MUST be:
+  1. Scan the `tasks/` directory of the current project.
+  2. Identify the highest priority task with `status: "doing"` or `status: "pending"`.
+  3. Inform the user: "Current status for [Project Name]: We are focused on **[Task Title]**. [Short description of next step]."
+- This ensures that the user always has clarity regardless of which workspace is opened.
