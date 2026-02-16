@@ -11,6 +11,7 @@ export interface Task {
     project: string;
     projectColor?: string;
     content?: string;
+    deadline?: string;
 }
 
 export interface Project {
@@ -83,6 +84,7 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                             order: parseInt(taskData.order) || 999,
                             project: metadata.name || entry.name,
                             content: content.trim(),
+                            deadline: taskData.deadline,
                         });
                     });
                 }

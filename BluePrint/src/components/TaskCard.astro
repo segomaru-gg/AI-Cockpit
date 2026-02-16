@@ -5,9 +5,10 @@ interface Props {
 	priority?: 'low' | 'medium' | 'high';
 	phase: string;
 	content?: string;
+	deadline?: string;
 }
 
-const { title, status, priority, phase, content } = Astro.props;
+const { title, status, priority, phase, content, deadline } = Astro.props;
 
 const statusEmoji = {
 	pending: '○',
@@ -27,7 +28,10 @@ const statusEmoji = {
 	</div>
 	<div class="task-footer">
 		<span class="task-phase">{phase}</span>
-		{priority && <span class={`priority ${priority}`}>[{priority.toUpperCase()}]</span>}
+		<div class="footer-meta">
+			{deadline && <span class="deadline">dead {deadline.replace(/-/g, '/')}</span>}
+			{priority && <span class={`priority ${priority}`}>[{priority.toUpperCase()}]</span>}
+		</div>
 	</div>
 </div>
 
@@ -84,6 +88,18 @@ const statusEmoji = {
 		color: var(--muted);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+	}
+
+	.footer-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+	}
+
+	.deadline {
+		color: #ffb86c;
+		font-weight: 700;
+		font-family: var(--font-mono);
 	}
 
 	.priority.high { color: #ff5555; }
