@@ -1,0 +1,30 @@
+:root {
+  /* --- Evergreen Palette --- */
+  --color-evergreen: #385A37;      /* 持続性、静寂、森と記憶 */
+  --color-ivory-paper: #F7F5EF;    /* 和紙、空白、構造の余地 (背景) */
+  --color-stone-gray: #9A9A95;     /* 中立、記録、構造 (テキスト・補助) */
+  --color-antique-umber: #6E4B3A;  /* 古物、時の深み (強調・リンク) */
+  --color-moonlight-blue: #32465A; /* 哲学性、内省、夜の静けさ (夜間・引用) */
+
+  /* --- Oxide Red Palette --- */
+  --color-oxide-red: #8B3A3A;      /* 鉄錆、記憶、静かな情熱 */
+  --color-burnt-umber: #5C3A2E;    /* 焦げた時間、古物 */
+  --color-dusty-rose: #CFAFA4;     /* 温度感のある余韻 (アクセント) */
+  --color-off-white: #F6F1EB;      /* 生成り、非構造の許容 (背景) */
+  --color-charcoal-black: #2B2B2B; /* 炭、コントラスト、根の色 */
+
+  /* Default Theme Mapping (Starting with Evergreen) */
+  --bg-primary: var(--color-ivory-paper);
+  --text-primary: var(--color-charcoal-black);
+  --text-muted: var(--color-stone-gray);
+  --accent-primary: var(--color-evergreen);
+  --accent-secondary: var(--color-antique-umber);
+}
+
+/* Red Theme Class (Optional Toggle) */
+.theme-red {
+  --bg-primary: var(--color-off-white);
+  --text-primary: var(--color-charcoal-black);
+  --accent-primary: var(--color-oxide-red);
+  --accent-secondary: var(--color-burnt-umber);
+}

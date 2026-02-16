@@ -1,0 +1,177 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { client } from '../lib/sanity';
+
+// Fetch services from Sanity
+const services = await client.fetch(`*[_type == "service"] | order(order asc)`);
+---
+
+<Layout>
+	<div class="nexus-container">
+		<section class="nexus-hero fade-in-up">
+			<span class="label zen-mincho">Concept Driven</span>
+			<h1 class="zen-mincho">NEXUS</h1>
+			<p class="hero-desc">
+				意味・構造・表現の循環を、組織の背骨に。<br>
+				暗黙知を資産化し、文化が自走する経営をサポートします。
+			</p>
+		</section>
+
+		<section class="services-section">
+			<h2 class="section-title zen-mincho">Service Menu</h2>
+			<div class="services-grid">
+				{services.length > 0 ? (
+					services.map((service: any) => (
+						<article class="service-card fade-in-up">
+							<h3 class="zen-mincho">{service.title}</h3>
+							<p>{service.description}</p>
+						</article>
+					))
+				) : (
+					<div class="placeholder-services">
+						<p>現在、サービスメニューを収蔵中です。<br>詳細は戦略ドキュメントをご参照ください。</p>
+						<a href="https://github.com/segomaru-gg/aeternum-project/blob/main/nexus/service_menu.md" class="doc-link">ドキュメントを閲覧 →</a>
+					</div>
+				)}
+			</div>
+		</section>
+
+		<section class="nexus-contact fade-in-up">
+			<div class="contact-box">
+				<h2 class="zen-mincho">対話を所望する</h2>
+				<p>貴組織の「意味」を共に深掘りしましょう。</p>
+				<a href="mailto:info@aeternum.com" class="contact-btn">お問い合わせ</a>
+			</div>
+		</section>
+	</div>
+</Layout>
+
+<style>
+	.nexus-container {
+		max-width: 1000px;
+		margin: 0 auto;
+		padding: 6rem 2rem;
+	}
+
+	.nexus-hero {
+		text-align: center;
+		margin-bottom: 10rem;
+	}
+
+	.label {
+		color: var(--accent-primary);
+		letter-spacing: 0.5em;
+		font-size: 0.9rem;
+		margin-bottom: 2rem;
+		display: block;
+	}
+
+	h1 {
+		font-size: 4rem;
+		letter-spacing: 0.2em;
+		margin-bottom: 3rem;
+	}
+
+	.hero-desc {
+		font-size: 1.2rem;
+		line-height: 2;
+		color: var(--text-muted);
+		max-width: 700px;
+		margin: 0 auto;
+	}
+
+	.section-title {
+		font-size: 2rem;
+		margin-bottom: 4rem;
+		text-align: center;
+		color: var(--accent-primary);
+	}
+
+	.services-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 3rem;
+		margin-bottom: 10rem;
+	}
+
+	.service-card {
+		padding: 3rem;
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		background: rgba(255, 255, 255, 0.02);
+		transition: all 0.3s;
+	}
+
+	.service-card:hover {
+		border-color: var(--accent-primary);
+		transform: translateY(-5px);
+	}
+
+	.service-card h3 {
+		font-size: 1.5rem;
+		margin-bottom: 1.5rem;
+		color: var(--accent-primary);
+	}
+
+	.service-card p {
+		font-size: 0.95rem;
+		line-height: 1.8;
+		color: var(--text-muted);
+	}
+
+	.placeholder-services {
+		grid-column: 1 / -1;
+		text-align: center;
+		padding: 4rem;
+		border: 1px dashed rgba(255, 255, 255, 0.1);
+		color: var(--text-muted);
+	}
+
+	.doc-link {
+		display: inline-block;
+		margin-top: 2rem;
+		color: var(--accent-primary);
+		text-decoration: none;
+		border-bottom: 1px solid var(--accent-primary);
+	}
+
+	.nexus-contact {
+		text-align: center;
+	}
+
+	.contact-box {
+		padding: 5rem;
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+	}
+
+	.contact-box h2 {
+		font-size: 2.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.contact-box p {
+		margin-bottom: 3rem;
+		opacity: 0.9;
+	}
+
+	.contact-btn {
+		display: inline-block;
+		padding: 1.2rem 4rem;
+		border: 1px solid var(--bg-primary);
+		text-decoration: none;
+		color: var(--bg-primary);
+		font-weight: 700;
+		letter-spacing: 0.2rem;
+		transition: all 0.3s;
+	}
+
+	.contact-btn:hover {
+		background: var(--bg-primary);
+		color: var(--accent-primary);
+	}
+
+	@media (max-width: 600px) {
+		h1 { font-size: 2.5rem; }
+		.contact-box { padding: 3rem 1.5rem; }
+	}
+</style>

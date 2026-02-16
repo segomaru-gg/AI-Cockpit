@@ -1,0 +1,168 @@
+---
+---
+<div class="audio-control" transition:persist>
+  <button id="audio-toggle" aria-label="Toggle ambient sound" class="zen-mincho">
+    <span class="status-icon"></span>
+    <span class="status-text">AMBIENCE (Tape Hiss): OFF</span>
+  </button>
+  <audio id="ambient-audio" loop>
+    <source src="/audio/tape-hiss.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<script>
+  const audio = document.getElementById('ambient-audio') as HTMLAudioElement;
+  const toggleBtn = document.getElementById('audio-toggle');
+  const statusText = toggleBtn?.querySelector('.status-text');
+  
+  let isPlaying = false;
+  let playPromise: Promise<void> | null = null;
+
+  const updateUI = (state: 'on' | 'off' | 'loading' | 'error') => {
+    if (!statusText || !toggleBtn) return;
+    
+    switch (state) {
+      case 'on':
+        statusText.textContent = 'AMBIENCE (Tape Hiss): ON';
+        toggleBtn.classList.add('playing');
+        break;
+      case 'off':
+        statusText.textContent = 'AMBIENCE (Tape Hiss): OFF';
+        toggleBtn.classList.remove('playing');
+        break;
+      case 'loading':
+        statusText.textContent = 'AMBIENCE: LOADING...';
+        break;
+      case 'error':
+        statusText.textContent = 'AMBIENCE: LOAD ERROR';
+        toggleBtn.classList.remove('playing');
+        break;
+    }
+  };
+
+  const playAudio = async () => {
+    if (!audio) return;
+    updateUI('loading');
+    try {
+      // If we don't catch, the promise might reject if interrupted
+      playPromise = audio.play();
+      await playPromise;
+      // UI update happens via 'playing' event listener for more accuracy
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        console.error('Playback failed:', e);
+        updateUI('error');
+      }
+    } finally {
+      playPromise = null;
+    }
+  };
+
+  const stopAudio = () => {
+    if (!audio) return;
+    audio.pause();
+    isPlaying = false;
+    updateUI('off');
+  };
+
+  toggleBtn?.addEventListener('click', () => {
+    if (isPlaying) {
+      stopAudio();
+    } else {
+      playAudio();
+    }
+  });
+
+  // Accurate state tracking
+  audio?.addEventListener('playing', () => {
+    isPlaying = true;
+    updateUI('on');
+  });
+
+  audio?.addEventListener('waiting', () => {
+    updateUI('loading');
+  });
+
+  audio?.addEventListener('pause', () => {
+    isPlaying = false;
+    updateUI('off');
+  });
+
+  // Handle View Transitions (keep state)
+  document.addEventListener('astro:after-swap', () => {
+    const nextAudio = document.getElementById('ambient-audio') as HTMLAudioElement;
+    if (isPlaying && nextAudio) {
+      nextAudio.play().catch(() => {});
+    }
+  });
+
+  // Listen for audio errors
+  audio?.addEventListener('error', (e) => {
+    console.error('Audio element error:', e);
+    updateUI('error');
+  });
+</script>
+
+<style>
+  .audio-control {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 1001;
+  }
+
+  #audio-toggle {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+  }
+
+  #audio-toggle:hover {
+    opacity: 1;
+    color: var(--accent-primary);
+  }
+
+  .status-icon {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  #audio-toggle.playing .status-icon {
+    background: var(--accent-primary);
+    box-shadow: 0 0 8px var(--accent-primary);
+  }
+
+  #audio-toggle.playing .status-icon::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid var(--accent-primary);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  #ambient-audio {
+    display: none;
+  }
+</style>

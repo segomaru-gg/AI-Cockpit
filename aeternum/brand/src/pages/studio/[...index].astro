@@ -1,0 +1,23 @@
+---
+// /src/pages/studio/[...index].astro
+export const prerender = false;
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Aeternum | 蒐集庵 Studio</title>
+</head>
+<body style="margin: 0; background: #fff;">
+    <div id="sanity"></div>
+
+    <script>
+        import { renderStudio } from 'sanity';
+        import config from '../../../sanity.config';
+
+        renderStudio(document.getElementById('sanity'), config);
+    </script>
+</body>
+</html>

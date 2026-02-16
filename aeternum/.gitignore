@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+.DS_Store
+
+# Build outputs
+dist/
+.astro/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Sanity
+/brand/sanity/node_modules/
+/brand/sanity/dist/
+
+# Scratch & Backup
+*.log
+scratch/
+temp_git_to_delete/
