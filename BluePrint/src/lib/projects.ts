@@ -108,7 +108,9 @@ export async function discoverProjects(cockpitRoot: string): Promise<Project[]> 
                 }
 
                 const doneTasks = tasks.filter(t => t.status === 'done').length;
-                const progress = tasks.length > 0 ? (doneTasks / tasks.length) * 100 : 0;
+                const doingTasks = tasks.filter(t => t.status === 'doing').length;
+                const points = doneTasks + (doingTasks * 0.5);
+                const progress = tasks.length > 0 ? (points / tasks.length) * 100 : 0;
 
                 // Dashboard URL Discovery
                 let dashboardUrl = metadata.dashboard_url || '';

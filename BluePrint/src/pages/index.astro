@@ -16,7 +16,7 @@ const projectStats = {
 };
 
 const overallProgress = projectStats.total > 0 
-	? (projectStats.done / projectStats.total) * 100 
+	? ((projectStats.done + projectStats.doing * 0.5) / projectStats.total) * 100 
 	: 0;
 
 const getAdvice = (pct: number) => {
@@ -31,10 +31,12 @@ const getCategoryStats = (cat: string) => {
 	const catTasks = catProjects.flatMap(p => p.tasks);
 	if (catTasks.length === 0) return null;
 	const done = catTasks.filter(t => t.status === 'done').length;
+	const doing = catTasks.filter(t => t.status === 'doing').length;
+	const points = done + doing * 0.5;
 	return {
 		done,
 		total: catTasks.length,
-		pct: Math.round((done / catTasks.length) * 100)
+		pct: Math.round((points / catTasks.length) * 100)
 	};
 };
 
