@@ -19,10 +19,40 @@ const overallProgress = projectStats.total > 0
 	? ((projectStats.done + projectStats.doing * 0.5) / projectStats.total) * 100 
 	: 0;
 
-const getAdvice = (pct: number) => {
-	if (pct < 30) return "今はタスクの遂行を優先しましょう。未履行タスクが蓄積しています。";
-	if (pct < 70) return "順調な進捗です。現在のワークフローを維持しつつ、確実にこなしましょう。";
-	return "次のタスクを考える頃合いです。新たな戦略フェーズへの移行を検討してください。";
+const getAdvice = (pct: number, tasks: any[] = []) => {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	const activeTasks = tasks.filter(t => t.status !== 'done');
+	
+	// 1. Critical Check: Overdue High Priority Tasks
+	const overdueHigh = activeTasks.find(t => {
+		if (!t.deadline) return false;
+		const d = new Date(t.deadline);
+		return t.priority === 'high' && d < today;
+	});
+	if (overdueHigh) return `[CRITICAL] 高優先タスクの期限 (${overdueHigh.deadline}) を超過しています。リソースを集中投下してください。`;
+
+	// 2. Urgent Check: Near Deadlines (within 2 days)
+	const twoDaysFromNow = new Date();
+	twoDaysFromNow.setDate(today.getDate() + 2);
+	
+	const urgentTask = activeTasks.find(t => {
+		if (!t.deadline) return false;
+		const d = new Date(t.deadline);
+		return d <= twoDaysFromNow;
+	});
+	if (urgentTask) return `[URGENT] 近々の期限 (${urgentTask.deadline}) が迫っています。現在の作業ピッチを上げてください。`;
+
+	// 3. High Prioriy Work Check
+	const hasHigh = activeTasks.some(t => t.priority === 'high');
+	if (hasHigh) return "重要度の高いミッションが進行中です。確実な品質での完遂を目指しましょう。";
+
+	// 4. Default Progress Based Advice
+	if (pct < 40) return "始動期です。まずは目前の pending タスクを doing に移行させ、初速を上げましょう。";
+	if (pct < 80) return "安定期です。このリズムを維持しつつ、次フェーズの準備も並行して進めてください。";
+	
+	return "収束期に入りました。残存タスクの仕上げと、成果物のメタ分析を開始しましょう。";
 };
 
 // Domain-specific statistics
@@ -68,7 +98,7 @@ const getCategoryStats = (cat: string) => {
 		<ProgressBar 
 			progress={overallProgress} 
 			label="Overall Completion" 
-			advice={getAdvice(overallProgress)}
+			advice={getAdvice(overallProgress, allTasks)}
 		/>
 
 		<nav class="filter-bar">
@@ -114,7 +144,7 @@ const getCategoryStats = (cat: string) => {
 					<ProgressBar 
 						progress={project.progress} 
 						label="Project Progress"
-						advice={getAdvice(project.progress)}
+						advice={getAdvice(project.progress, project.tasks)}
 					/>
 					{project.latestLog && (
 						<div class="latest-log">
