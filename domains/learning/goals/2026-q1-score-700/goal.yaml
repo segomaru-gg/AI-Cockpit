@@ -1,0 +1,9 @@
+goal_id: "2026-q1-score-700"
+goal_title: "TOEIC 700 Breakthrough"
+deadline: "2026-03-31"
+status: "active"
+current_phase_id: "p1-gold-phrase"
+goal_progress: 0
+phases:
+  - "p1-gold-phrase"
+  - "p2-vocab-drill"

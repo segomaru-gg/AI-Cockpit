@@ -1,0 +1,284 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { client } from '../../lib/sanity';
+
+const { slug } = Astro.params;
+
+const item = await client.fetch(`*[_type == "shushuanItem" && (slug.current == $slug || slug.current == "/" + $slug)][0]{
+  _id,
+  name,
+  category,
+  era,
+  story,
+  price,
+  status,
+  "imageUrl": mainImage.asset->url
+}`, { slug });
+
+if (!item) {
+  return Astro.redirect('/404');
+}
+---
+
+<Layout title={item.name}>
+  <div class="focus-mode-container">
+    <nav class="back-nav fade-in">
+      <a href="/catalog" class="monospace">← BACK TO CATALOG</a>
+    </nav>
+
+    <article class="item-focus fade-in-up">
+      <header class="item-header">
+        <div class="meta monospace">
+          <span class="era">{item.era}</span>
+          <span class="sep">/</span>
+          <span class="category">{item.category}</span>
+        </div>
+        <h1 class="zen-mincho">{item.name}</h1>
+      </header>
+
+      {item.imageUrl && (
+        <div class="item-visual fade-in">
+          <img src={item.imageUrl} alt={item.name} />
+          <div class="vignette"></div>
+        </div>
+      )}
+
+      <div class="item-story-wrap">
+        <div class="prose zen-mincho">
+          {item.story ? (
+            item.story.split('\n').map((line: string) => (
+              <p>{line}</p>
+            ))
+          ) : (
+            <p class="no-story">物語は、まだ閉じられています。</p>
+          )}
+        </div>
+      </div>
+
+      <footer class="item-actions fade-in">
+        <div class="price-box">
+          <span class="label monospace">VALUE:</span>
+          <span class="price monospace">
+            {item.price ? `¥${item.price.toLocaleString()}` : '—'}
+          </span>
+        </div>
+        
+        {item.status === 'Available' && item.price && (
+          <button 
+            class="purchase-btn-large zen-mincho"
+            id="purchase-btn"
+            data-item={JSON.stringify({
+              itemId: item._id,
+              name: item.name,
+              price: item.price,
+              imageUrl: item.imageUrl
+            })}
+          >
+            この物語を所望する
+          </button>
+        )}
+        
+        {item.status !== 'Available' && (
+          <div class="status-marker monospace">{item.status}</div>
+        )}
+      </footer>
+    </article>
+  </div>
+</Layout>
+
+<script>
+  const purchaseBtn = document.getElementById('purchase-btn');
+  if (purchaseBtn) {
+    purchaseBtn.addEventListener('click', async () => {
+      const itemData = JSON.parse(purchaseBtn.getAttribute('data-item') || '{}');
+      
+      purchaseBtn.textContent = 'CONNECTING...';
+      (purchaseBtn as HTMLButtonElement).disabled = true;
+
+      try {
+        const response = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(itemData),
+        });
+
+        const { url, error } = await response.json();
+        if (url) {
+          window.location.href = url;
+        } else {
+          alert(`Error: ${error}`);
+          purchaseBtn.textContent = 'この物語を所望する';
+          (purchaseBtn as HTMLButtonElement).disabled = false;
+        }
+      } catch (err) {
+        console.error(err);
+        alert('通信エラーが発生しました。');
+        purchaseBtn.textContent = 'この物語を所望する';
+        (purchaseBtn as HTMLButtonElement).disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .focus-mode-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10rem 2rem;
+    min-height: 100vh;
+  }
+
+  .back-nav {
+    margin-bottom: 4rem;
+  }
+
+  .back-nav a {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.2em;
+    transition: color 0.3s;
+  }
+
+  .back-nav a:hover {
+    color: var(--accent-primary);
+  }
+
+  .item-header {
+    margin-bottom: 6rem;
+    text-align: center;
+  }
+
+  .meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3em;
+    margin-bottom: 1.5rem;
+  }
+
+  .sep {
+    margin: 0 1rem;
+    opacity: 0.3;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+
+  .item-visual {
+    margin-bottom: 8rem;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+  }
+
+  .item-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: sepia(0.2) contrast(1.1);
+  }
+
+  .vignette {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.1);
+    pointer-events: none;
+  }
+
+  .item-story-wrap {
+    margin-bottom: 8rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .prose {
+    font-size: 1.25rem;
+    line-height: 2.4;
+    color: var(--text-primary);
+    text-align: justify;
+  }
+
+  .prose p {
+    margin-bottom: 2.5rem;
+  }
+
+  .prose :global(p:first-of-type::first-letter) {
+    float: left;
+    font-size: 5rem;
+    line-height: 1;
+    padding-top: 4px;
+    padding-right: 12px;
+    color: var(--accent-primary);
+  }
+
+  .item-actions {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+  }
+
+  .price-box {
+    text-align: center;
+  }
+
+  .price-box .label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.3em;
+  }
+
+  .price-box .price {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+  }
+
+  .purchase-btn-large {
+    background: var(--accent-primary);
+    color: #fff;
+    border: none;
+    padding: 1.5rem 4rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    letter-spacing: 0.2em;
+    border-radius: 2px;
+  }
+
+  .purchase-btn-large:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(var(--accent-primary-rgb), 0.2);
+    filter: brightness(1.1);
+  }
+
+  .status-marker {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 2rem;
+    letter-spacing: 0.4em;
+  }
+
+  .monospace {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  @media (max-width: 768px) {
+    h1 { font-size: 2.5rem; }
+    .focus-mode-container { padding: 6rem 1.5rem; }
+    .item-visual { margin-bottom: 4rem; }
+    .item-story-wrap { margin-bottom: 4rem; }
+  }
+</style>

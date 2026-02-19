@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oduman JP - Mission Control</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dark-theme">
+    <div class="glass-bg"></div>
+
+    <header>
+        <div class="logo-container">
+            <span class="logo-text">ODUMAN JP</span>
+            <span class="project-id">CL01OD</span>
+        </div>
+        <div class="status-badge">Phase 1: RESTART</div>
+    </header>
+
+    <main>
+        <section id="kgi" class="dashboard-card">
+            <h2><span class="icon">🎯</span> Key Objectives (KGI)</h2>
+            <div class="kgi-grid">
+                <div class="kgi-item">
+                    <span class="label">Amazon Sales</span>
+                    <span class="value">MAXIMIZE</span>
+                    <div class="progress-bar">
+                        <div class="fill" style="width: 30%;"></div>
+                    </div>
+                </div>
+                <div class="kgi-item">
+                    <span class="label">Stockout Risk</span>
+                    <span class="value">MINIMIZE</span>
+                    <div class="status-dot green"></div>
+                </div>
+                <div class="kgi-item">
+                    <span class="label">Brand Trust</span>
+                    <span class="value">IMPROVE</span>
+                    <div class="status-dot blue"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="middle-row">
+            <section id="roadmap" class="dashboard-card">
+                <h2><span class="icon">🗺️</span> Roadmap</h2>
+                <div class="roadmap-timeline">
+                    <div class="timeline-item active">
+                        <span class="phase">Phase 1</span>
+                        <span class="desc">Recovery Flow</span>
+                        <span class="date">Deadline: 2026-03-15</span>
+                    </div>
+                    <div class="timeline-item future">
+                        <span class="phase">Phase 2</span>
+                        <span class="desc">Growth Activation</span>
+                        <span class="date">Deadline: 2026-03-31</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="stakeholders" class="dashboard-card">
+                <h2><span class="icon">👥</span> Stakeholders</h2>
+                <div class="stakeholder-list">
+                    <div class="person">
+                        <span class="role">PM</span>
+                        <span class="name">@sego</span>
+                    </div>
+                    <div class="person">
+                        <span class="role">Ops</span>
+                        <span class="name">@hiroaki</span>
+                    </div>
+                    <div class="person">
+                        <span class="role">Client</span>
+                        <span class="name">@herman</span>
+                    </div>
+                    <div class="person bottleneck">
+                        <span class="role">Owner</span>
+                        <span class="name">@suzuki</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section id="tasks" class="dashboard-card">
+            <h2><span class="icon">⚡</span> Recent Tasks</h2>
+            <div id="task-list" class="task-grid">
+                <!-- Tasks will be injected here -->
+                <div class="task-loading">Syncing with blueprint protocol...</div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

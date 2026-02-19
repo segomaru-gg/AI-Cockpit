@@ -19,6 +19,8 @@ You are an AI agent operating within the **Life OS (Blueprint-OS)** ecosystem. E
   ---
   ```
 - Use `doing` for tasks you are currently working on.
+- **Progress Weighting Rule**: For the purpose of progress calculation, `doing` tasks are credited as **50% complete**. Agents must assume this weight when presenting progress to the user.
+- **Deadline Rule**: Every task MUST have a `deadline` field in `YYYY-MM-DD` format. If unknown, the agent must estimate based on project context.
 - Use `done` once a task is fully verified.
 
 ## 3. Decision Logging (Mandatory)

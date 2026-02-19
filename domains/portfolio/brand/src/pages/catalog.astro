@@ -1,0 +1,835 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { client } from '../lib/sanity';
+import imageUrlBuilder from '@sanity/image-url';
+
+const builder = imageUrlBuilder(client);
+function urlFor(source: any) {
+  return builder.image(source);
+}
+
+// Fetch items from Sanity
+const items = await client.fetch(`*[_type == "shushuanItem"]{
+  _id,
+  name,
+  category,
+  era,
+  story,
+  status,
+  price,
+  tags,
+  "slug": slug.current,
+  	"imageUrl": mainImage.asset->url
+}`);
+
+// Generate graph data server-side
+const graphData = {
+  nodes: [
+    ...items.map((it: any) => ({ id: it._id, name: it.name, type: 'item', slug: it.slug?.replace(/^\//, ''), data: it })),
+    ...[...new Set(items.flatMap((it: any) => it.tags || []))].map(tag => ({ id: `tag-${tag}`, name: tag, type: 'tag' }))
+  ],
+  links: items.flatMap((it: any) => (it.tags || []).map((tag: string) => ({ source: it._id, target: `tag-${tag}` })))
+};
+
+const tags = [
+  { id: 'all', label: 'All' },
+  { id: 'Antique', label: 'Antique' },
+  { id: 'Music', label: 'Music' },
+  { id: 'Word', label: 'Word' },
+];
+---
+
+<Layout>
+	<div class="catalog-wrapper">
+		<!-- Left Pane: Preview / Story -->
+		<aside class="preview-pane">
+			<div id="preview-content" class="preview-content">
+				<div id="preview-image-container" class="preview-image-container"></div>
+				<div class="preview-meta">
+					<span id="preview-era"></span>
+					<span id="preview-category"></span>
+				</div>
+				<h1 id="preview-title">蒐集物目録</h1>
+				<div id="preview-story">
+					<p>物質としての機能だけでなく、<br />その背後にある物語と時間を蒐集しました。</p>
+				</div>
+			</div>
+		</aside>
+
+		<!-- Right Pane: Grid -->
+		<main class="grid-pane">
+			<div class="controls-row">
+				<div class="tag-filter-container">
+					{tags.map(tag => (
+						<button class="tag-filter" data-tag={tag.id}>{tag.label}</button>
+					))}
+				</div>
+
+				<div class="view-toggle-container monospace">
+					<button class="view-btn" data-view="grid">GRID</button>
+					<button class="view-btn active" data-view="graph">GRAPH</button>
+				</div>
+			</div>
+
+			<section id="item-grid" class="item-grid view-content-pane">
+				{items.map((item: any, index: number) => (
+					<article 
+						class="item-card fade-in-up" 
+						style={`animation-delay: ${index * 0.1}s`}
+						data-item={JSON.stringify(item)}
+					>
+						<a href={`/catalog/${item.slug?.replace(/^\//, '')}`} class="card-link">
+							<div class="card-image-wrapper">
+								{item.imageUrl ? (
+									<img src={item.imageUrl} alt={item.name} class="card-img" />
+								) : (
+									<div class="card-placeholder"></div>
+								)}
+							</div>
+							<div class="card-info">
+								<h3 class="card-title">{item.name}</h3>
+								<div class="card-footer">
+									<span class="card-price">
+										{item.price ? `¥${item.price.toLocaleString()}` : '—'}
+									</span>
+									{item.price && (
+										<button 
+											class="purchase-btn" 
+											data-item={JSON.stringify({
+												itemId: item._id,
+												name: item.name,
+												price: item.price,
+												imageUrl: item.imageUrl
+											})}
+										>
+											所望する
+										</button>
+									)}
+								</div>
+							</div>
+						</a>
+					</article>
+				))}
+			</section>
+
+			<section id="graph-view" class="graph-view view-content-pane active" data-graph={JSON.stringify(graphData)}>
+				<div id="graph-container"></div>
+				<div class="graph-hint monospace">Drag to explore / Click node to inspect</div>
+			</section>
+		</main>
+	</div>
+
+	<!-- Immersive Item Modal -->
+	<div id="item-modal" class="item-modal">
+		<div class="modal-overlay"></div>
+		<div class="modal-container">
+			<button class="modal-close" aria-label="Close modal">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+					<path d="M18 6L6 18M6 6l12 12"></path>
+				</svg>
+			</button>
+			<div id="modal-content-area" class="modal-content-area">
+				<!-- Injected via JS -->
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script src="https://unpkg.com/force-graph" is:inline></script>
+
+<script>
+	function initCatalog() {
+		const items = document.querySelectorAll('.item-card');
+		const previewContent = document.getElementById('preview-content');
+		const previewTitle = document.getElementById('preview-title');
+		const previewStory = document.getElementById('preview-story');
+		const previewEra = document.getElementById('preview-era');
+		const previewCategory = document.getElementById('preview-category');
+		const previewImg = document.getElementById('preview-image-container');
+
+		const updatePreview = (data: any) => {
+			if (previewContent) {
+				previewContent.style.opacity = '0';
+				previewContent.style.transform = 'translateY(10px)';
+				
+				setTimeout(() => {
+					if (previewTitle) previewTitle.textContent = data.name;
+					if (previewStory) previewStory.innerHTML = data.story ? data.story.replace(/\n/g, '<br>') : '';
+					if (previewEra) previewEra.textContent = data.era;
+					if (previewCategory) previewCategory.textContent = data.category;
+					
+					if (previewImg) {
+						if (data.imageUrl) {
+							previewImg.style.display = 'block';
+							previewImg.innerHTML = `<img src="${data.imageUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 2px;">`;
+						} else {
+							previewImg.style.display = 'none';
+						}
+					}
+					
+					previewContent.style.opacity = '1';
+					previewContent.style.transform = 'translateY(0)';
+				}, 200);
+			}
+		};
+
+		// Modal Logic
+		const modal = document.getElementById('item-modal');
+		const modalContent = document.getElementById('modal-content-area');
+		const modalClose = modal?.querySelector('.modal-close');
+		const modalOverlay = modal?.querySelector('.modal-overlay');
+
+		const showModal = (data: any) => {
+			if (!modal || !modalContent) return;
+
+			modalContent.innerHTML = `
+				<div class="modal-image-side">
+					${data.imageUrl ? `<img src="${data.imageUrl}" alt="${data.name}">` : '<div class="card-placeholder"></div>'}
+				</div>
+				<div class="modal-info-side">
+					<div class="modal-meta zen-mincho">
+						<span>${data.category || ''}</span>
+						<span>${data.era || ''}</span>
+					</div>
+					<h2 class="modal-title zen-mincho">${data.name}</h2>
+					<div class="modal-story zen-mincho">
+						${data.story ? data.story.replace(/\n/g, '<br>') : ''}
+					</div>
+					<div class="modal-actions">
+						<span class="modal-price">¥${data.price ? data.price.toLocaleString() : '—'}</span>
+						<a href="/catalog/${data.slug?.replace(/^\//, '')}" class="modal-view-full monospace">VIEW FULL STORY</a>
+						${data.price ? `
+							<button class="purchase-btn" data-item='${JSON.stringify({
+								itemId: data._id,
+								name: data.name,
+								price: data.price,
+								imageUrl: data.imageUrl
+							})}'>所望する</button>
+						` : ''}
+					</div>
+				</div>
+			`;
+
+			modal.classList.add('active');
+			document.body.style.overflow = 'hidden';
+
+			// Re-bind purchase button inside modal
+			const modalPurchaseBtn = modalContent.querySelector('.purchase-btn');
+			if (modalPurchaseBtn) {
+				modalPurchaseBtn.addEventListener('click', (e) => handlePurchase(e as MouseEvent, modalPurchaseBtn as HTMLButtonElement));
+			}
+		};
+
+		const hideModal = () => {
+			modal?.classList.remove('active');
+			document.body.style.overflow = '';
+		};
+
+		modalClose?.addEventListener('click', hideModal);
+		modalOverlay?.addEventListener('click', hideModal);
+
+		items.forEach(card => {
+			card.addEventListener('mouseenter', () => {
+				const data = JSON.parse(card.getAttribute('data-item') || '{}');
+				updatePreview(data);
+			});
+			// Optionally open modal on grid click too?
+			card.querySelector('.card-link')?.addEventListener('click', (e) => {
+				// We'll keep default navigation for grid for now unless requested
+			});
+		});
+
+		// View Mode Toggle
+		const viewBtns = document.querySelectorAll('.view-btn');
+		const viewPanes = document.querySelectorAll('.view-content-pane');
+		let graphInstance: any = null;
+
+		viewBtns.forEach(btn => {
+			btn.addEventListener('click', () => {
+				const targetView = btn.getAttribute('data-view');
+				viewBtns.forEach(b => b.classList.remove('active'));
+				btn.classList.add('active');
+
+				viewPanes.forEach(pane => {
+					pane.classList.toggle('active', pane.id === `${targetView}-view` || (pane.id === 'item-grid' && targetView === 'grid'));
+				});
+
+				if (targetView === 'graph' && !graphInstance) {
+					initGraph();
+				}
+			});
+		});
+
+		function initGraph() {
+			const container = document.getElementById('graph-container');
+			const graphSection = document.getElementById('graph-view');
+			if (!container || !graphSection) return;
+			// @ts-ignore
+			if (typeof ForceGraph === 'undefined') {
+				console.warn('ForceGraph not loaded yet, retrying...');
+				setTimeout(initGraph, 100);
+				return;
+			}
+
+			const data = JSON.parse(graphSection.getAttribute('data-graph') || '{}');
+			
+			// Deterministic color generator for tags
+			const getTagColor = (tag: string) => {
+				let hash = 0;
+				for (let i = 0; i < tag.length; i++) {
+					hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+				}
+				const h = Math.abs(hash % 360);
+				return `hsl(${h}, 40%, 65%)`;
+			};
+
+			// @ts-ignore
+			graphInstance = ForceGraph()(container)
+				.graphData(data)
+				.nodeId('id')
+				.nodeColor((node: any) => node.type === 'tag' ? getTagColor(node.name) : '#1a2a1b')
+				.nodeRelSize((node: any) => node.type === 'tag' ? 5 : 7)
+				.linkColor(() => 'rgba(0,0,0,0.08)')
+				.linkWidth(0.5)
+				.width(container.clientWidth)
+				.height(container.clientHeight)
+				.nodeCanvasObject((node: any, ctx: any, globalScale: any) => {
+					const label = node.name;
+					const fontSize = 12/globalScale;
+					ctx.font = `${fontSize}px "Zen Old Mincho", serif`;
+					
+					ctx.beginPath();
+					ctx.arc(node.x, node.y, node.type === 'tag' ? 3.5 : 5, 0, 2 * Math.PI, false);
+					ctx.fillStyle = node.type === 'tag' ? getTagColor(node.name) : '#1a2a1b';
+					ctx.fill();
+
+					if (globalScale > 1.2 || node.type === 'item') {
+						ctx.textAlign = 'center';
+						ctx.textBaseline = 'middle';
+						ctx.fillStyle = node.type === 'tag' ? '#666' : '#1a2a1b';
+						ctx.fillText(label, node.x, node.y - (node.type === 'item' ? 12 : 10));
+					}
+				})
+				.nodeCanvasObjectMode(() => 'after')
+				.onNodeHover((node: any) => {
+					container.style.cursor = node ? 'pointer' : null;
+					if (node && node.type === 'item') {
+						updatePreview(node.data);
+					}
+				})
+				.onNodeClick((node: any) => {
+					if (node && node.type === 'item') {
+						showModal(node.data);
+					}
+				})
+				.nodePointerAreaPaint((node: any, color: any, ctx: any) => {
+					ctx.fillStyle = color;
+					ctx.beginPath();
+					ctx.arc(node.x, node.y, 8, 0, 2 * Math.PI, false);
+					ctx.fill();
+				});
+
+			graphInstance.d3ReheatSimulation();
+
+			window.addEventListener('resize', () => {
+				if (graphInstance) graphInstance.width(container.clientWidth).height(container.clientHeight);
+			});
+		}
+
+		if (document.getElementById('graph-view')?.classList.contains('active')) {
+			initGraph();
+		}
+
+		// Tag Filtering (Client-side)
+		const tags = document.querySelectorAll('.tag-filter');
+		tags.forEach(tag => {
+			tag.addEventListener('click', () => {
+				const selectedTag = tag.getAttribute('data-tag');
+				tags.forEach(t => t.classList.toggle('active', t === tag));
+
+				const gridItems = document.querySelectorAll('.item-card');
+				gridItems.forEach(item => {
+					const itemData = JSON.parse(item.getAttribute('data-item') || '{}');
+					const matches = selectedTag === 'all' || (itemData.tags && itemData.tags.includes(selectedTag));
+					(item as HTMLElement).style.display = matches ? 'block' : 'none';
+				});
+
+				if (graphInstance) {
+					const fullData = JSON.parse(document.getElementById('graph-view')?.getAttribute('data-graph') || '{}');
+					if (selectedTag === 'all') {
+						graphInstance.graphData(fullData);
+					} else {
+						const filteredNodes = fullData.nodes.filter((n: any) => 
+							n.id === `tag-${selectedTag}` || 
+							(n.type === 'item' && n.data.tags && n.data.tags.includes(selectedTag))
+						);
+						const filteredLinks = fullData.links.filter((l: any) => 
+							l.source.id === `tag-${selectedTag}` || l.target.id === `tag-${selectedTag}` ||
+							(typeof l.source === 'string' ? l.source === `tag-${selectedTag}` : l.source.id === `tag-${selectedTag}`) ||
+							(typeof l.target === 'string' ? l.target === `tag-${selectedTag}` : l.target.id === `tag-${selectedTag}`)
+						);
+						graphInstance.graphData({ nodes: filteredNodes, links: filteredLinks });
+					}
+				}
+			});
+		});
+
+		// Stripe Checkout Logic (Extracted for reuse)
+		const handlePurchase = async (e: MouseEvent, btn: HTMLButtonElement) => {
+			e.preventDefault();
+			e.stopPropagation();
+			const itemData = JSON.parse(btn.getAttribute('data-item') || '{}');
+			
+			const originalText = btn.textContent;
+			btn.textContent = '準備中...';
+			btn.disabled = true;
+
+			try {
+				const response = await fetch('/api/checkout', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(itemData),
+				});
+
+				const { url, error } = await response.json();
+				if (url) {
+					window.location.href = url;
+				} else {
+					alert(`Error: ${error}`);
+					btn.textContent = originalText;
+					btn.disabled = false;
+				}
+			} catch (err) {
+				console.error(err);
+				alert('通信エラーが発生しました。');
+				btn.textContent = originalText;
+				btn.disabled = false;
+			}
+		};
+
+		// Stripe Checkout (Initial binding for grid)
+		const purchaseBtns = document.querySelectorAll('.purchase-btn');
+		purchaseBtns.forEach(btn => {
+			btn.addEventListener('click', (e) => handlePurchase(e as MouseEvent, btn as HTMLButtonElement));
+		});
+	}
+
+	// Support Astro Transitions and initial load
+	document.addEventListener('astro:page-load', () => {
+		initCatalog();
+	}, { once: false });
+</script>
+
+<style>
+	.catalog-wrapper {
+		display: flex;
+		min-height: 100vh;
+	}
+
+	.preview-pane {
+		width: 40%;
+		height: 100vh;
+		position: sticky;
+		top: 0;
+		padding: 6rem 4rem;
+		border-right: 1px solid rgba(0, 0, 0, 0.05);
+	}
+
+	.preview-content {
+		transition: all 0.3s ease;
+	}
+
+	.preview-image-container {
+		margin-bottom: 2rem;
+		width: 100%;
+		aspect-ratio: 4/3;
+		background: rgba(0, 0, 0, 0.03);
+		overflow: hidden;
+		border-radius: 2px;
+		display: none;
+	}
+
+	.preview-meta {
+		display: flex;
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	#preview-title {
+		font-size: 2.5rem;
+		margin-bottom: 2.5rem;
+		font-weight: 500;
+		color: var(--accent-primary);
+	}
+
+	#preview-story {
+		line-height: 2.2;
+		color: var(--text-primary);
+	}
+
+	.grid-pane {
+		width: 60%;
+		padding: 8rem 4rem;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.controls-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 4rem;
+	}
+
+	.tag-filter-container {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.view-toggle-container {
+		display: flex;
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		border-radius: 20px;
+		padding: 3px;
+	}
+
+	.view-btn {
+		background: transparent;
+		border: none;
+		color: var(--text-muted);
+		padding: 0.5rem 1.5rem;
+		font-size: 0.7rem;
+		cursor: pointer;
+		border-radius: 15px;
+		transition: all 0.3s;
+		letter-spacing: 0.1em;
+	}
+
+	.view-btn.active {
+		background: var(--accent-primary);
+		color: white;
+	}
+
+	.view-content-pane {
+		display: none;
+	}
+
+	.view-content-pane.active {
+		display: grid;
+	}
+
+	.item-grid {
+		display: none; /* Hidden by default, shown when active */
+		grid-template-columns: repeat(2, 1fr);
+		gap: 4rem;
+	}
+
+	.item-grid.active {
+		display: grid;
+	}
+
+	.graph-view.active {
+		display: flex;
+		flex-direction: column;
+		height: 600px;
+		position: relative;
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		border-radius: 4px;
+		background: rgba(0, 0, 0, 0.01);
+	}
+
+	#graph-container {
+		flex: 1;
+		width: 100%;
+		height: 100%;
+	}
+
+	.graph-hint {
+		position: absolute;
+		bottom: 1.5rem;
+		left: 1.5rem;
+		font-size: 0.65rem;
+		color: var(--text-muted);
+		pointer-events: none;
+		opacity: 0.6;
+	}
+
+	.tag-filter {
+		background: transparent;
+		border: 1px solid transparent;
+		font-family: inherit;
+		color: var(--text-muted);
+		cursor: pointer;
+		padding: 0.5rem 1rem;
+		transition: all 0.3s;
+		font-size: 0.8rem;
+	}
+
+	.tag-filter.active {
+		color: var(--accent-primary);
+		border-bottom: 1px solid var(--accent-primary);
+		font-weight: bold;
+	}
+
+	.item-card {
+		cursor: pointer;
+	}
+
+	.card-link {
+		text-decoration: none;
+		color: inherit;
+		display: block;
+	}
+
+	.card-image-wrapper {
+		aspect-ratio: 1;
+		background: rgba(0, 0, 0, 0.03);
+		margin-bottom: 1.5rem;
+		overflow: hidden;
+		transition: transform 0.3s;
+	}
+
+	.item-card:hover .card-image-wrapper {
+		transform: translateY(-5px);
+	}
+
+	.card-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.5s;
+	}
+
+	.item-card:hover .card-img {
+		transform: scale(1.05);
+	}
+
+	.card-title {
+		font-size: 1rem;
+		margin: 0 0 0.8rem;
+		font-weight: 500;
+	}
+
+	.card-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.card-price {
+		font-size: 0.9rem;
+		color: var(--text-muted);
+		font-family: monospace;
+	}
+
+	.purchase-btn {
+		background: transparent;
+		border: 1px solid var(--accent-primary);
+		color: var(--accent-primary);
+		padding: 0.4rem 0.8rem;
+		font-size: 0.75rem;
+		cursor: pointer;
+		transition: all 0.3s;
+		font-family: inherit;
+		letter-spacing: 0.1em;
+	}
+
+	.purchase-btn:hover {
+		background: var(--accent-primary);
+		color: var(--bg-primary);
+	}
+
+	.purchase-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	@media (max-width: 900px) {
+		.catalog-wrapper {
+			flex-direction: column;
+		}
+		.preview-pane {
+			width: 100%;
+			height: auto;
+			position: static;
+			padding: 4rem 2rem;
+		}
+		.grid-pane {
+			width: 100%;
+			padding: 2rem;
+		}
+		.item-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	/* Modal Styles */
+	.item-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 2000;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+	}
+
+	.item-modal.active {
+		display: flex;
+		pointer-events: auto;
+	}
+
+	.modal-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(255, 255, 253, 0.95); /* Aeternum Ivory */
+		backdrop-filter: blur(8px);
+		opacity: 0;
+		transition: opacity 0.5s ease;
+	}
+
+	.item-modal.active .modal-overlay {
+		opacity: 1;
+	}
+
+	.modal-container {
+		position: relative;
+		width: 90%;
+		max-width: 1000px;
+		max-height: 85vh;
+		background: var(--bg-primary);
+		border: 1px solid rgba(0, 0, 0, 0.05);
+		box-shadow: 0 30px 60px rgba(0, 0, 0, 0.05);
+		transform: translateY(20px);
+		opacity: 0;
+		transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+		overflow: hidden;
+		display: flex;
+	}
+
+	.item-modal.active .modal-container {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	.modal-close {
+		position: absolute;
+		top: 2rem;
+		right: 2rem;
+		background: transparent;
+		border: none;
+		color: var(--text-primary);
+		cursor: pointer;
+		z-index: 10;
+		padding: 0.5rem;
+		transition: transform 0.3s ease;
+	}
+
+	.modal-close:hover {
+		transform: rotate(90deg);
+	}
+
+	.modal-content-area {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		overflow-y: auto;
+	}
+
+	/* Modal Content Specifics */
+	.modal-image-side {
+		flex: 1;
+		background: rgba(0, 0, 0, 0.02);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 4rem;
+	}
+
+	.modal-image-side img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+	}
+
+	.modal-info-side {
+		flex: 1;
+		padding: 6rem 4rem;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.modal-meta {
+		display: flex;
+		gap: 1.5rem;
+		margin-bottom: 2rem;
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.modal-title {
+		font-size: 2.5rem;
+		margin-bottom: 2.5rem;
+		font-weight: 500;
+		color: var(--accent-primary);
+	}
+
+	.modal-story {
+		line-height: 2;
+		color: var(--text-primary);
+		margin-bottom: 3rem;
+		font-size: 1.1rem;
+	}
+
+	.modal-actions {
+		margin-top: auto;
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+	}
+
+	.modal-price {
+		font-size: 1.2rem;
+		font-family: monospace;
+		color: var(--text-muted);
+	}
+
+	.modal-view-full {
+		text-decoration: none;
+		color: var(--text-muted);
+		font-size: 0.8rem;
+		letter-spacing: 0.1em;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+		transition: all 0.3s;
+	}
+
+	.modal-view-full:hover {
+		color: var(--accent-primary);
+		border-bottom-color: var(--accent-primary);
+	}
+
+	@media (max-width: 900px) {
+		.modal-container {
+			flex-direction: column;
+		}
+		.modal-image-side {
+			padding: 2rem;
+		}
+		.modal-info-side {
+			padding: 3rem 2rem;
+		}
+	}
+</style>

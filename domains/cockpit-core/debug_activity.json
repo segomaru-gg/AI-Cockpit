@@ -1,0 +1,39 @@
+{
+  "serverTime": "2/16/2026, 7:19:57 PM",
+  "serverISO": "2026-02-16T10:19:57.811Z",
+  "global": {
+    "2026-02-16": 19
+  },
+  "projects": [
+    {
+      "id": "blueprint-cockpit",
+      "activity": {
+        "2026-02-16": 9
+      }
+    },
+    {
+      "id": "boabase",
+      "activity": {
+        "2026-02-16": 6
+      }
+    },
+    {
+      "id": "oduman",
+      "activity": {
+        "2026-02-16": 1
+      }
+    },
+    {
+      "id": "toeic",
+      "activity": {
+        "2026-02-16": 1
+      }
+    },
+    {
+      "id": "aeternum",
+      "activity": {
+        "2026-02-16": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+---
+interface Props {
+    branch: string;
+    hash: string;
+    dirty: boolean;
+    date: string;
+}
+
+const { branch, hash, dirty, date } = Astro.props;
+---
+
+<div class="git-status">
+    <div class="git-row">
+        <span class="branch-icon">⑂</span>
+        <span class="branch-name">{branch}</span>
+        {
+            dirty && (
+                <span class="dirty-badge" title="Uncommitted changes">
+                    *
+                </span>
+            )
+        }
+    </div>
+    <div class="git-row meta">
+        <span class="commit-hash">{hash}</span>
+        <span class="commit-date">{date}</span>
+    </div>
+</div>
+
+<style>
+    .git-status {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: var(--muted);
+        background: rgba(0, 0, 0, 0.2);
+        padding: 0.5rem;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        width: fit-content;
+    }
+
+    .git-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .git-row.meta {
+        margin-top: 0.3rem;
+        opacity: 0.7;
+        font-size: 0.6rem;
+        justify-content: space-between;
+    }
+
+    .branch-icon {
+        color: var(--accent);
+        font-size: 0.9rem;
+    }
+
+    .branch-name {
+        color: var(--fg);
+        font-weight: 600;
+    }
+
+    .dirty-badge {
+        color: #ff5555;
+        font-weight: 800;
+    }
+
+    .commit-hash {
+        color: var(--accent);
+    }
+</style>

@@ -1,0 +1,9 @@
+goal_id: "ops-to-culture-transition"
+goal_title: "OpsからCulture/Brand経営への移行準備完了（自律運営状態の確立）"
+deadline: "2026-03-31"
+status: "active"
+current_phase_id: "p1-transition"
+goal_progress: 0
+phases:
+  - "p1-transition"
+  - "p2-governance"

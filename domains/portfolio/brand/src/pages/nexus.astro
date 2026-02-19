@@ -1,0 +1,290 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { client } from '../lib/sanity';
+
+// Fetch services from Sanity
+const services = await client.fetch(`*[_type == "service"] | order(order asc)`);
+---
+
+<Layout>
+	<div class="nexus-wrapper">
+		<div class="bg-grid"></div>
+		
+		<div class="nexus-container">
+			<header class="nexus-hero fade-in-up">
+				<div class="hero-labels monospace">
+					<span class="label-item">STRATEGY</span>
+					<span class="label-sep">|</span>
+					<span class="label-item">MEANING</span>
+					<span class="label-sep">|</span>
+					<span class="label-item">STRUCTURE</span>
+				</div>
+				<h1 class="zen-mincho">NEXUS</h1>
+				<div class="hero-desc-wrap">
+					<p class="hero-desc zen-mincho">
+						意味・構造・表現の循環を、組織の背骨に。<br>
+						個人の暗黙知を資産化し、文化が自走する経営をサポートします。
+					</p>
+				</div>
+			</header>
+
+			<section class="services-section">
+				<div class="section-header">
+					<span class="section-num monospace">01</span>
+					<h2 class="section-title zen-mincho">Service_Architecture</h2>
+					<div class="section-line"></div>
+				</div>
+
+				<div class="services-grid">
+					{services.length > 0 ? (
+						services.map((service: any, index: number) => (
+							<article class="service-card fade-in-up" style={`animation-delay: ${index * 0.15}s`}>
+								<div class="card-num monospace">ID: {String(index + 1).padStart(2, '0')}</div>
+								<h3 class="zen-mincho">{service.title}</h3>
+								<div class="card-body">
+									<p>{service.description}</p>
+								</div>
+								<div class="card-footer">
+									<div class="dot"></div>
+									<div class="footer-line"></div>
+								</div>
+							</article>
+						))
+					) : (
+						<div class="placeholder-services">
+							<p>現在、サービスメニューを収蔵中です。<br>詳細は戦略ドキュメントをご参照ください。</p>
+							<a href="https://github.com/segomaru-gg/aeternum-project/blob/main/nexus/service_menu.md" class="doc-link">DOCUMENTS_VIEW →</a>
+						</div>
+					)}
+				</div>
+			</section>
+
+			<section class="nexus-contact fade-in-up">
+				<div class="contact-box">
+					<h2 class="zen-mincho">対話を所望する</h2>
+					<p class="monospace">LET_US_DEEPEN_THE_MEANING_TOGETHER</p>
+					<a href="mailto:info@aeternum.com" class="contact-btn zen-mincho">お問い合わせを送る</a>
+				</div>
+			</section>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	.nexus-wrapper {
+		position: relative;
+		min-height: 100vh;
+		overflow: hidden;
+	}
+
+	.bg-grid {
+		position: absolute;
+		inset: 0;
+		background-image: 
+			linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+		background-size: 100px 100px;
+		pointer-events: none;
+		z-index: -1;
+	}
+
+	.nexus-container {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 12rem 2rem;
+	}
+
+	.nexus-hero {
+		text-align: center;
+		margin-bottom: 12rem;
+	}
+
+	.hero-labels {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 1.5rem;
+		font-size: 0.75rem;
+		color: var(--accent-primary);
+		letter-spacing: 0.4em;
+		margin-bottom: 3rem;
+	}
+
+	.label-sep {
+		opacity: 0.2;
+	}
+
+	h1 {
+		font-size: 6rem;
+		letter-spacing: 0.3em;
+		margin-bottom: 4rem;
+		font-weight: 500;
+		color: var(--text-primary);
+	}
+
+	.hero-desc-wrap {
+		max-width: 600px;
+		margin: 0 auto;
+		position: relative;
+		padding: 2rem 0;
+	}
+
+	.hero-desc-wrap::before,
+	.hero-desc-wrap::after {
+		content: '';
+		position: absolute;
+		left: 20%;
+		right: 20%;
+		height: 1px;
+		background: rgba(0,0,0,0.05);
+	}
+
+	.hero-desc-wrap::before { top: 0; }
+	.hero-desc-wrap::after { bottom: 0; }
+
+	.hero-desc {
+		font-size: 1.25rem;
+		line-height: 2.2;
+		color: var(--text-primary);
+	}
+
+	.services-section {
+		margin-bottom: 12rem;
+	}
+
+	.section-header {
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+		margin-bottom: 6rem;
+	}
+
+	.section-num {
+		font-size: 0.9rem;
+		color: var(--accent-primary);
+		opacity: 0.5;
+	}
+
+	.section-title {
+		font-size: 1.8rem;
+		color: var(--text-primary);
+		letter-spacing: 0.1em;
+		white-space: nowrap;
+	}
+
+	.section-line {
+		flex: 1;
+		height: 1px;
+		background: linear-gradient(90deg, rgba(0,0,0,0.1), transparent);
+	}
+
+	.services-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 6rem 4rem;
+	}
+
+	.service-card {
+		position: relative;
+		padding: 2rem 0;
+	}
+
+	.card-num {
+		font-size: 0.7rem;
+		color: var(--accent-primary);
+		margin-bottom: 2rem;
+		letter-spacing: 0.2em;
+	}
+
+	.service-card h3 {
+		font-size: 1.8rem;
+		margin-bottom: 2.5rem;
+		color: var(--text-primary);
+		position: relative;
+	}
+
+	.card-body p {
+		font-size: 1rem;
+		line-height: 2;
+		color: var(--text-muted);
+		text-align: justify;
+	}
+
+	.card-footer {
+		margin-top: 3rem;
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+	}
+
+	.dot {
+		width: 4px;
+		height: 4px;
+		background: var(--accent-primary);
+		border-radius: 50%;
+	}
+
+	.footer-line {
+		flex: 1;
+		height: 1px;
+		background: rgba(0,0,0,0.05);
+	}
+
+	.service-card:hover h3 {
+		color: var(--accent-primary);
+	}
+
+	.nexus-contact {
+		padding: 10rem 0;
+	}
+
+	.contact-box {
+		background: var(--bg-primary);
+		border: 1px solid rgba(0,0,0,0.05);
+		padding: 8rem 4rem;
+		text-align: center;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.contact-box h2 {
+		font-size: 3rem;
+		margin-bottom: 1.5rem;
+		color: var(--text-primary);
+	}
+
+	.contact-box p {
+		font-size: 0.8rem;
+		letter-spacing: 0.4em;
+		color: var(--text-muted);
+		margin-bottom: 4rem;
+	}
+
+	.contact-btn {
+		display: inline-block;
+		padding: 1.5rem 5rem;
+		background: var(--accent-primary);
+		color: white;
+		text-decoration: none;
+		font-size: 1.1rem;
+		letter-spacing: 0.2em;
+		transition: all 0.4s;
+		border-radius: 2px;
+	}
+
+	.contact-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 30px rgba(var(--accent-primary-rgb), 0.2);
+	}
+
+	.monospace {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	}
+
+	@media (max-width: 900px) {
+		h1 { font-size: 3.5rem; }
+		.services-grid { grid-template-columns: 1fr; gap: 4rem; }
+		.nexus-container { padding: 6rem 1.5rem; }
+		.contact-box { padding: 4rem 2rem; }
+	}
+</style>

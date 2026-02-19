@@ -1,0 +1,131 @@
+---
+interface Props {
+	progress: number;
+	label?: string;
+	advice?: string;
+}
+
+const { progress, label, advice } = Astro.props;
+---
+
+<div class="progress-container">
+	{
+		label && (
+			<div class="progress-label">
+				<span class="label-text">{label}</span>
+				<span class={`pct-text ${progress > 0 ? "active" : "idle"}`}>
+					{Math.round(progress)}%
+				</span>
+			</div>
+		)
+	}
+	<div class="progress-track">
+		<div class="progress-fill" style={`width: ${progress}%`}></div>
+	</div>
+	{
+		advice && (
+			<div class="progress-advice">
+				<span class="agent-prompt">AGENT_ADVICE &gt;</span>
+				<span
+					class={`advice-content ${
+						advice.includes("[CRITICAL]")
+							? "critical"
+							: advice.includes("[URGENT]")
+							? "urgent"
+							: ""
+					}`}
+				>
+					{advice}
+				</span>
+			</div>
+		)
+	}
+</div>
+
+<style>
+	.progress-container {
+		width: 100%;
+		margin: 1.5rem 0;
+	}
+
+	.progress-label {
+		display: flex;
+		justify-content: space-between;
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		margin-bottom: 0.5rem;
+		letter-spacing: 0.05em;
+	}
+
+	.label-text {
+		color: var(--muted);
+	}
+
+	.pct-text {
+		font-weight: 700;
+		transition: color 0.3s ease;
+	}
+
+	.pct-text.idle {
+		color: var(--fg); /* Increased brightness for 0% */
+		opacity: 0.6;
+	}
+
+	.pct-text.active {
+		color: var(--accent);
+	}
+
+	.progress-track {
+		height: 4px;
+		background: var(--border);
+		width: 100%;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.progress-fill {
+		height: 100%;
+		background: var(--accent);
+		transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+		box-shadow: 0 0 10px var(--accent);
+	}
+
+	.progress-advice {
+		margin-top: 0.6rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		letter-spacing: 0.02em;
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.agent-prompt {
+		color: var(--accent);
+		font-weight: 800;
+	}
+
+	.advice-content {
+		color: var(--fg);
+		opacity: 0.9;
+	}
+
+	.advice-content.urgent {
+		color: #ffb86c;
+		font-weight: 700;
+	}
+
+	.advice-content.critical {
+		color: #ff5555;
+		font-weight: 700;
+		text-decoration: underline;
+	}
+
+	@media (max-width: 768px) {
+		.progress-advice {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.2rem;
+		}
+	}
+</style>

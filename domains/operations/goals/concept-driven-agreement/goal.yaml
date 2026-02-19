@@ -1,0 +1,8 @@
+goal_id: "concept-driven-agreement"
+goal_title: "Concept Driven（ブランド拡張者）ポジションの制度化と契約締結"
+deadline: "2026-03-31"
+status: "active"
+current_phase_id: "p1-design-contract"
+goal_progress: 0
+phases:
+  - "p1-design-contract"

@@ -1,0 +1,6 @@
+phase_id: "p1-transition"
+phase_name: "移行準備フェーズ（仕組み化・権限整理・再現性テスト）"
+status: "active"
+progress: 50
+deadline: "2026-03-31"
+completion_journal_ref: ""

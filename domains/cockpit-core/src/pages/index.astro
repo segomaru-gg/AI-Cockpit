@@ -1,0 +1,1392 @@
+---
+import Layout from "../layouts/Layout.astro";
+import TaskCard from "../components/TaskCard.astro";
+import ProgressBar from "../components/ProgressBar.astro";
+import ActivityGrid from "../components/ActivityGrid.astro";
+import GitStatus from "../components/GitStatus.astro";
+import { discoverProjects } from "../lib/projects";
+
+const cockpitRoot = "/Users/ryosaigo/AI-Cockpit";
+const projects = await discoverProjects(cockpitRoot);
+
+// Global Activity Aggregation
+const globalActivity: Record<string, number> = {};
+projects.forEach((p) => {
+	Object.entries(p.activity).forEach(([date, count]) => {
+		globalActivity[date] = (globalActivity[date] || 0) + count;
+	});
+});
+
+// Aggregate statistics
+const allTasks = projects.flatMap((p) => p.tasks);
+const projectStats = {
+	total: allTasks.length,
+	done: allTasks.filter((t) => t.status === "done").length,
+	doing: allTasks.filter((t) => t.status === "doing").length,
+	projectsCount: projects.length,
+};
+
+const overallProgress =
+	projectStats.projectsCount > 0
+		? projects.reduce((acc, p) => acc + (p.activeGoal ? p.activeGoal.progress : 0), 0) /
+		  projectStats.projectsCount
+		: 0;
+
+const getAdvice = (projects: any[]) => {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	// 1. Critical: Phase Deadline Approaches (within 2 weeks)
+	for (const p of projects) {
+		if (p.activeGoal) {
+			for (const phase of p.activeGoal.phases) {
+				if (phase.status === 'active' && phase.deadline) {
+					const d = new Date(phase.deadline);
+					const diffTime = d.getTime() - today.getTime();
+					const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+					if (diffDays < 0) {
+						return `[CRITICAL] ${p.name} - ${phase.name} の期限 (${phase.deadline}) を超過しています。直ちに対処してください。`;
+					}
+					if (diffDays <= 14) {
+						return `[URGENT] ${p.name} - ${phase.name} の期限まであと ${diffDays} 日です (${phase.deadline})。優先的に進めてください。`;
+					}
+				}
+			}
+		}
+	}
+
+	// 2. Warning: Active Phases without Deadlines
+	const noDeadlinePhase = projects.find(p => p.activeGoal?.phases.some((ph: any) => ph.status === 'active' && !ph.deadline));
+	if (noDeadlinePhase) {
+		return `[ATTENTION] ${noDeadlinePhase.name} のActive Phaseに期限が設定されていません。phase.yamlにdeadlineを追加してください。`;
+	}
+
+	// 3. General Advice based on lowest progress
+	const lowestProject = projects
+		.filter(p => p.activeGoal && p.activeGoal.progress < 100)
+		.sort((a, b) => (a.activeGoal?.progress || 0) - (b.activeGoal?.progress || 0))[0];
+
+	if (lowestProject) {
+		return `順調です。進捗が最も低い ${lowestProject.name} (${lowestProject.activeGoal?.progress}%) のタスク消化に注力しましょう。`;
+	}
+
+	return "全プロジェクトの目標が達成されています。新たなGoalを設定するか、次のフェーズへ移行してください。";
+};
+
+// Domain-specific statistics
+// Domain-specific statistics (Goal-centric)
+const getCategoryStats = (cat: string) => {
+	const catProjects = projects.filter((p) => p.category === cat && p.activeGoal);
+	if (catProjects.length === 0) return null;
+
+	const totalProgress = catProjects.reduce((acc, p) => acc + (p.activeGoal?.progress || 0), 0);
+	const avgProgress = Math.round(totalProgress / catProjects.length);
+
+	return {
+		count: catProjects.length,
+		pct: avgProgress,
+	};
+};
+	// Focus First Logic: Identify the "Current Mission"
+	// Priority: BluePrint > Others, then by lowest progress active goal.
+	const currentMission = projects.find(p => p.name === 'BluePrint' && p.activeGoal && p.activeGoal.progress < 100) 
+		|| projects.find(p => p.activeGoal && p.activeGoal.progress < 100);
+
+	const missionPhase = currentMission?.activeGoal?.phases.find(p => p.status === 'active');
+---
+
+<Layout title="Cockpit Dashboard">
+	<header class="dashboard-header">
+		
+		<div class="top-bar">
+			<div class="global-identity">
+				<span class="system-label">UNIFIED_COCKPIT // GLOBAL_VIEW</span>
+				<h1>MASTER CONTROL DASHBOARD</h1>
+			</div>
+			<div class="system-meta">
+				<a href="/focus" class="focus-link">[ENTER_FOCUS_MODE]</a>
+				<span class="system-label">v2.1.6 // {new Date().toLocaleDateString('ja-JP')}</span>
+			</div>
+		</div>
+
+
+
+		<div class="global-stats-bar">
+			<div class="stat-group">
+				<span class="stat-label">GLOBAL_PROGRESS</span>
+				<ProgressBar progress={overallProgress} label="" />
+			</div>
+			<div class="stat-items">
+				<div class="mini-stat">
+					<span class="label">ACTIVE_PROJECTS</span>
+					<span class="value">{projectStats.projectsCount}</span>
+				</div>
+				<div class="mini-stat">
+					<span class="label">TOTAL_TASKS</span>
+					<span class="value">{projectStats.total}</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="advice-panel">
+			<span class="system-label">AI_TACTICAL_ADVICE //</span>
+			<p class="advice-text">{getAdvice(projects)}</p>
+		</div>
+
+		<nav class="filter-bar">
+			<div class="filter-main">
+				<div class="filter-buttons">
+					<button class="filter-btn active cat-all" data-filter="all">ALL</button>
+					{["business", "ops", "brand", "personal"].map((cat) => (
+						<button class={`filter-btn cat-${cat}`} data-filter={cat}>{cat}</button>
+					))}
+				</div>
+				<div class="search-box">
+					<input type="text" id="dashboard-search" placeholder="Filter projects..." />
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<div class="blueprint-grid" id="project-grid">
+		{
+			projects.map((project) => (
+				<section
+					class="project-section"
+					data-category={project.category}
+				>
+					<div class="project-header">
+						<div class="project-meta">
+							<span
+								class={`category-badge cat-${project.category}`}
+							>
+								{project.category}
+							</span>
+							<span class="system-label">PROJECT_MODULE</span>
+							{project.dashboardUrl ? (
+								<a
+									href={project.dashboardUrl}
+									class="project-link"
+									target="_blank"
+								>
+									<h2>
+										{project.name}{" "}
+										<span class="link-icon">↗</span>
+									</h2>
+								</a>
+							) : (
+								<h2>{project.name}</h2>
+							)}
+						</div>
+						<div class="project-activity">
+							<span class="system-label">PROJECT_MOMENTUM /</span>
+							<ActivityGrid
+								activity={project.activity}
+								size="small"
+							/>
+						</div>
+						{project.latestLog && (
+							<div class="latest-log">
+								<span class="log-title">
+									LATEST_LOG: {project.latestLog}
+								</span>
+								{project.latestLogPreview && (
+									<p class="log-content">
+										{project.latestLogPreview}
+									</p>
+								)}
+								{project.latestLogFull && (
+									<button
+										class="view-log-btn"
+										data-log-title={project.latestLog}
+										data-log-body={project.latestLogFull}
+									>
+										[VIEW_FULL_LOG]
+									</button>
+								)}
+							</div>
+						)}
+						
+						<!-- Project-level ProgressBar Removed as per request -->
+
+						<!-- Multi-Goal Rendering -->
+						{project.activeGoals && project.activeGoals.length > 0 ? (
+							project.activeGoals.map((goal) => (
+								<div class="goal-container">
+									<div class="goal-header">
+										<span class="system-label">GOAL_{goal.id.toUpperCase()} //</span>
+										<div style="display: flex; justify-content: space-between; align-items: center;">
+											<h3 class="goal-title">{goal.title}</h3>
+											<span class="system-label">PROGRESS: {goal.progress}%</span>
+										</div>
+									</div>
+									
+									<div class="phase-timeline">
+										{goal.phases.filter(p => p.status === 'active').map((phase) => (
+											<div 
+												class={`phase-card ${phase.status}`} 
+												tabindex="0"
+												data-phase-name={phase.name}
+												data-phase-status={phase.status}
+												data-phase-tasks={JSON.stringify(phase.tasks || [])}
+											>
+												<div class="phase-header">
+													<span class="phase-name">{phase.name}</span>
+													<span class="phase-badge">{phase.status}</span>
+												</div>
+												<div class="phase-progress-bar">
+													<div class="progress-fill" style={`width: ${phase.progress}%`}></div>
+												</div>
+												<div class="phase-meta">
+													<span class="progress-text">{phase.progress}% COMPLETED</span>
+													{phase.deadline && (
+														<span class={`phase-deadline ${new Date(phase.deadline) < new Date() ? 'overdue' : ''}`}>
+															DUE: {phase.deadline}
+														</span>
+													)}
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							))
+						) : (
+							project.activeGoal && (
+								<div class="goal-container">
+									<div class="goal-header">
+										<span class="system-label">CURRENT_TARGET //</span>
+										<h3 class="goal-title">{project.activeGoal.title}</h3>
+									</div>
+									
+									<div class="phase-timeline">
+										{project.activeGoal.phases.filter(p => p.status === 'active').map((phase) => (
+											<div 
+												class={`phase-card ${phase.status}`} 
+												tabindex="0"
+												data-phase-name={phase.name}
+												data-phase-status={phase.status}
+												data-phase-tasks={JSON.stringify(phase.tasks || [])}
+											>
+												<div class="phase-header">
+													<span class="phase-name">{phase.name}</span>
+													<span class="phase-badge">{phase.status}</span>
+												</div>
+												<div class="phase-progress-bar">
+													<div class="progress-fill" style={`width: ${phase.progress}%`}></div>
+												</div>
+												<div class="phase-meta">
+													<span class="progress-text">{phase.progress}% COMPLETED</span>
+													{phase.deadline && (
+														<span class={`phase-deadline ${new Date(phase.deadline) < new Date() ? 'overdue' : ''}`}>
+															DUE: {phase.deadline}
+														</span>
+													)}
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							)
+						)}
+					</div>
+					<!-- Task List Removed as per request -->
+				</section>
+			))
+		}
+	</div>
+
+	<footer class="dashboard-footer">
+		<div class="footer-line"></div>
+		<div class="footer-content">
+			<span>COCKPIT_LINK_STABLE</span>
+			<span>MULTI_DOMAIN // AGGREGATED</span>
+			<span>{new Date().toISOString()}</span>
+		</div>
+	</footer>
+
+	<!-- Journal Modal -->
+	<div id="journal-modal" class="modal-overlay">
+		<div class="modal-container">
+			<header class="modal-header">
+				<h2 id="modal-log-title">LOG_TITLE</h2>
+				<button id="close-journal-modal" class="close-btn"
+					>CLOSE [X]</button
+				>
+			</header>
+			<div class="modal-body">
+				<pre id="modal-log-content"></pre>
+			</div>
+		</div>
+	</div>
+
+	<!-- Task Detail Modal -->
+	<div id="task-modal" class="modal-overlay">
+		<div class="modal-container task-modal-container">
+			<header class="modal-header">
+				<h2 id="modal-task-title">TASK_TITLE</h2>
+				<button id="close-task-modal" class="close-btn"
+					>CLOSE [X]</button
+				>
+			</header>
+			<div class="modal-body">
+				<div id="modal-task-content" class="markdown-body"></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Phase Tasks Modal -->
+	<div id="phase-modal" class="modal-overlay">
+		<div class="modal-container phase-modal-container">
+			<header class="modal-header">
+				<h2 id="modal-phase-title">PHASE_TITLE</h2>
+				<button id="close-phase-modal" class="close-btn">CLOSE [X]</button>
+			</header>
+			<div class="modal-body">
+				<div id="modal-phase-content" class="phase-tasks-list-modal"></div>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	/* --- New Hero Styles --- */
+	.top-bar {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		margin-bottom: 3rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.global-identity h1 {
+		font-size: 1.8rem;
+		font-weight: 800;
+		color: var(--fg);
+		margin: 0;
+		line-height: 1;
+	}
+
+	.system-meta {
+		text-align: right;
+	}
+
+	.section-label {
+		display: block;
+		font-size: 0.7rem;
+		color: var(--muted);
+		margin-bottom: 1rem;
+		letter-spacing: 0.2em;
+	}
+
+	.hero-section {
+		margin-bottom: 4rem;
+	}
+
+	.current-mission-card {
+		background: linear-gradient(135deg, rgba(33, 158, 188, 0.1) 0%, rgba(15, 17, 21, 0.5) 100%);
+		border: 1px solid var(--accent);
+		padding: 2rem;
+		border-radius: 8px;
+		position: relative;
+		overflow: hidden;
+		box-shadow: 0 0 30px rgba(33, 158, 188, 0.1);
+	}
+
+	.current-mission-card::before {
+		content: "";
+		position: absolute;
+		top: 0; left: 0; width: 4px; height: 100%;
+		background: var(--accent);
+	}
+
+	.mission-label {
+		font-size: 0.7rem;
+		color: var(--accent);
+		letter-spacing: 0.2em;
+		display: block;
+		margin-bottom: 0.5rem;
+	}
+
+	.mission-title {
+		font-size: 2.5rem;
+		font-weight: 800;
+		color: #fff;
+		margin: 0;
+		line-height: 1.1;
+		display: flex;
+		flex-wrap: wrap; 
+		gap: 0.5rem;
+		align-items: baseline;
+	}
+	
+	.mission-title .separator { color: var(--muted); font-weight: 300; }
+	.mission-title .goal-name { color: var(--fg); }
+
+	.active-phase-display {
+		margin-top: 2rem;
+		background: rgba(0,0,0,0.3);
+		padding: 1rem;
+		border-radius: 4px;
+		 border: 1px solid var(--border);
+	}
+
+	.phase-info {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 0.5rem;
+	}
+
+	.phase-badge {
+		font-size: 0.6rem;
+		background: var(--accent);
+		color: #000;
+		padding: 2px 6px;
+		border-radius: 2px;
+		font-weight: 700;
+	}
+
+	.phase-name { font-weight: 600; font-size: 1rem; color: var(--fg); }
+
+	.phase-progress { display: flex; align-items: center; gap: 1rem; }
+	.phase-progress .progress-bar { height: 6px; background: var(--accent); border-radius: 3px; }
+	.phase-progress .progress-pct { font-size: 0.8rem; font-family: var(--font-mono); color: var(--muted); }
+
+	.hero-actions {
+		margin-top: 2rem;
+		display: flex;
+		gap: 1rem;
+	}
+
+	.focus-mode-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.8rem;
+		font-size: 0.9rem;
+		background: var(--accent);
+		color: #000; /* Contrast text */
+		font-weight: 700;
+		padding: 12px 24px;
+		text-decoration: none;
+		border-radius: 4px;
+		letter-spacing: 0.1em;
+		transition: all 0.2s ease;
+		box-shadow: 0 0 15px rgba(33, 158, 188, 0.4);
+	}
+
+	.focus-mode-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 0 25px rgba(33, 158, 188, 0.6);
+	}
+
+	.project-link-btn {
+		display: inline-flex;
+		align-items: center;
+		padding: 0 20px;
+		font-size: 0.8rem;
+		color: var(--muted);
+		text-decoration: none;
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		transition: all 0.2s ease;
+	}
+	.project-link-btn:hover { color: var(--fg); border-color: var(--fg); }
+
+	.global-stats-bar {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 2rem;
+		margin-bottom: 2rem;
+		border-bottom: 1px solid var(--border);
+		padding-bottom: 2rem;
+	}
+	
+	.stat-group { flex: 1; }
+	.stat-items { display: flex; gap: 2rem; }
+	.mini-stat { display: flex; flex-direction: column; align-items: flex-end; }
+	.mini-stat .label { font-size: 0.6rem; color: var(--muted); }
+	.mini-stat .value { font-size: 1.1rem; font-weight: 700; color: var(--fg); }
+
+	.advice-panel {
+		background: rgba(255, 255, 255, 0.03);
+		border-left: 2px solid var(--accent);
+		padding: 1rem;
+		margin-bottom: 2rem;
+	}
+	.advice-text { margin: 0; font-size: 0.9rem; color: var(--fg); line-height: 1.6; }
+
+	.filter-bar {
+		margin-top: 0; /* Reset */
+		border-top: none;
+		padding-top: 0;
+	}
+
+	.filter-main {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+
+	.filter-buttons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.8rem;
+		align-items: center;
+	}
+
+	/* --- End New Hero Styles --- */
+
+	.dashboard-header {
+		margin-bottom: 4rem;
+		/* border-bottom removed */
+	}
+
+	/* Keep existing utility classes like .system-label if needed, but redefine mainly in new block */
+	.system-label {
+		font-size: 0.7rem;
+		color: var(--muted);
+		display: block;
+		margin-bottom: 0.5rem;
+		letter-spacing: 0.2em;
+	}
+
+	/* .stats-grid, .header-main removed/replaced */
+
+
+	.blueprint-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+		gap: 4rem;
+	}
+
+	.project-section {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.project-header {
+		margin-bottom: 2rem;
+		position: relative;
+	}
+
+	.project-meta {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 1rem;
+	}
+
+	.project-link {
+		text-decoration: none;
+		color: inherit;
+		display: inline-block;
+		transition: transform 0.2s ease;
+	}
+
+	.project-link:hover {
+		transform: translateX(4px);
+	}
+
+	.project-link h2 {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.link-icon {
+		font-size: 0.8rem;
+		opacity: 0;
+		color: var(--accent);
+		transition: opacity 0.2s ease;
+	}
+
+	.project-link:hover .link-icon {
+		opacity: 1;
+	}
+
+	.category-badge,
+	.filter-btn {
+		font-size: 0.6rem;
+		background: var(--border);
+		color: var(--muted);
+		padding: 2px 8px;
+		width: fit-content;
+		text-transform: uppercase;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		border-radius: 2px;
+		border: none;
+		font-family: var(--font-mono);
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.category-badge {
+		margin-bottom: 0.5rem;
+		cursor: default;
+	}
+
+	.filter-btn {
+		opacity: 0.4;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.btn-stats {
+		font-size: 0.5rem;
+		opacity: 0.7;
+		background: rgba(0, 0, 0, 0.1);
+		padding: 1px 4px;
+		border-radius: 2px;
+	}
+
+	.cat-all .btn-stats {
+		background: rgba(0, 0, 0, 0.05);
+	}
+
+	.filter-btn:hover,
+	.filter-btn.active {
+		opacity: 1;
+	}
+
+	.cat-all {
+		background: #ffffff; /* Pure White */
+		color: #000000;
+	}
+
+	.cat-business {
+		background: #ff4d4d; /* Bright Red */
+		color: white;
+	}
+
+	.cat-ops {
+		background: #ffd700; /* Gold/Yellow */
+		color: black;
+	}
+
+	.cat-personal {
+		background: #00ff7f; /* Spring Green */
+		color: black;
+	}
+
+	.cat-brand {
+		background: #9370db; /* Medium Purple */
+		color: white;
+	}
+
+	.filter-btn.active {
+		box-shadow: 0 0 10px currentColor;
+		outline: 1px solid var(--fg);
+	}
+
+	.project-meta h2 {
+		font-size: 1.4rem;
+		margin: 0;
+		color: var(--accent);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.latest-log {
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--border);
+	}
+
+	.latest-log .log-title {
+		display: block;
+		font-size: 0.7rem;
+		color: var(--muted);
+		text-transform: uppercase;
+		margin-bottom: 0.4rem;
+	}
+
+	.latest-log .log-content {
+		font-size: 0.85rem;
+		color: var(--fg);
+		line-height: 1.5;
+		opacity: 0.8;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.log-title {
+		color: var(--fg);
+	}
+
+	.view-log-btn {
+		background: none;
+		border: 1px solid var(--muted);
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 0.6rem;
+		padding: 2px 8px;
+		margin-top: 0.8rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-transform: uppercase;
+	}
+
+	.view-log-btn:hover {
+		color: var(--accent);
+		border-color: var(--accent);
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	/* Goal & Phase Layout */
+	.goal-container {
+		margin-top: 1.5rem;
+		background: rgba(255, 255, 255, 0.02);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 1.5rem;
+	}
+
+	.goal-header {
+		margin-bottom: 1.5rem;
+	}
+
+	.goal-title {
+		font-size: 1.2rem;
+		margin: 0.5rem 0 0 0;
+		color: var(--fg);
+		font-weight: 700;
+	}
+
+	.phase-timeline {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		position: relative;
+	}
+
+	.phase-timeline::before {
+		content: '';
+		position: absolute;
+		left: 1rem;
+		top: 0;
+		bottom: 0;
+		width: 1px;
+		background: var(--border);
+		z-index: 0;
+	}
+
+	.phase-card {
+		position: relative;
+		background: #0f1115;
+		border: 1px solid var(--border);
+		padding: 1rem;
+		border-radius: 4px;
+		margin-left: 2rem;
+		z-index: 1;
+		transition: transform 0.2s ease, border-color 0.2s ease;
+	}
+
+	.phase-card::before {
+		content: '';
+		position: absolute;
+		left: -1.3rem;
+		top: 50%;
+		width: 0.6rem;
+		height: 1px;
+		background: var(--border);
+	}
+
+	.phase-card::after {
+		content: '';
+		position: absolute;
+		left: -1.55rem;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 0.5rem;
+		height: 0.5rem;
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: 50%;
+	}
+
+	.phase-card.active {
+		border-color: var(--accent);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	}
+
+	.phase-card.active::after {
+		background: var(--accent);
+		border-color: var(--accent);
+		box-shadow: 0 0 10px var(--accent);
+	}
+
+	.phase-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 0.8rem;
+	}
+
+	.phase-name {
+		font-weight: 600;
+		font-size: 0.9rem;
+		color: var(--fg);
+	}
+
+	.phase-badge {
+		font-size: 0.6rem;
+		text-transform: uppercase;
+		padding: 2px 6px;
+		border-radius: 2px;
+		background: var(--border);
+		color: var(--muted);
+	}
+
+	.phase-card.active .phase-badge {
+		background: var(--accent);
+		color: #000;
+		font-weight: 700;
+	}
+
+	.phase-card.done .phase-name {
+		text-decoration: line-through;
+		color: var(--muted);
+	}
+
+	.phase-card.done .phase-badge {
+		background: #4caf50;
+		color: #000;
+	}
+
+	.phase-progress-bar {
+		height: 4px;
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 2px;
+		overflow: hidden;
+		margin-bottom: 0.5rem;
+	}
+
+	.progress-fill {
+		height: 100%;
+		background: var(--accent);
+		transition: width 0.3s ease;
+	}
+
+	.phase-card.done .progress-fill {
+		background: #4caf50;
+	}
+
+	.phase-meta {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 0.6rem;
+		color: var(--muted);
+		font-family: var(--font-mono);
+	}
+
+	.phase-deadline {
+		opacity: 0.8;
+	}
+
+	.phase-deadline.overdue {
+		color: #ff4d4d;
+		font-weight: bold;
+	}
+
+	/* Phase Task Hover Overlay */
+	.phase-tasks-overlay {
+		display: none;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		background: #1a1d23;
+		border: 1px solid var(--border);
+		border-top: none;
+		padding: 1rem;
+		z-index: 10;
+		box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+		border-radius: 0 0 4px 4px;
+	}
+
+	.phase-card:hover .phase-tasks-overlay,
+	.phase-card:focus .phase-tasks-overlay,
+	.phase-card:focus-within .phase-tasks-overlay {
+		display: block;
+	}
+	
+	.phase-card {
+		/* Existing styles */
+		cursor: pointer;
+	}
+
+	.phase-tasks-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		max-height: 200px;
+		overflow-y: auto;
+	}
+
+	.phase-task-item {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+		color: var(--fg);
+	}
+
+	.phase-task-item.done {
+		color: #4caf50;
+		text-decoration: line-through;
+		opacity: 0.7;
+	}
+	
+	.phase-task-item.doing {
+		color: var(--accent);
+		font-weight: bold;
+	}
+
+	.task-status-icon {
+		font-family: var(--font-mono);
+		color: var(--muted);
+		font-size: 0.7rem;
+	}
+
+	/* Modal Styles */
+	.modal-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.85);
+		backdrop-filter: blur(8px);
+		display: none;
+		justify-content: center;
+		align-items: center;
+		z-index: 1000;
+		padding: 2rem;
+	}
+
+	.modal-overlay.active {
+		display: flex;
+	}
+
+	.modal-container {
+		background: #0f1115;
+		border: 1px solid var(--accent);
+		width: 100%;
+		max-width: 800px;
+		max-height: 80vh;
+		display: flex;
+		flex-direction: column;
+		box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+	}
+
+	.modal-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1.5rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.phase-tasks-list-modal {
+		max-height: 60vh;
+		overflow-y: auto;
+		padding-right: 0.5rem;
+		/* Smooth scrolling for touch/trackpad */
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior: contain;
+	}
+	
+	/* Scrollbar Styling for modal list */
+	.phase-tasks-list-modal::-webkit-scrollbar {
+		width: 6px;
+	}
+	.phase-tasks-list-modal::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.02);
+	}
+	.phase-tasks-list-modal::-webkit-scrollbar-thumb {
+		background: var(--border);
+		border-radius: 3px;
+	}
+	.phase-tasks-list-modal::-webkit-scrollbar-thumb:hover {
+		background: var(--accent);
+	}
+
+	.modal-header h2 {
+		font-size: 1rem;
+		margin: 0;
+		color: var(--accent);
+	}
+
+	/* Modal Task Item Styling */
+	.modal-task-item {
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 1rem;
+		margin-bottom: 0.8rem;
+		transition: all 0.2s ease;
+	}
+	.modal-task-item:hover {
+		background: rgba(255, 255, 255, 0.05);
+		border-color: var(--accent);
+	}
+	.task-status-badge {
+		font-size: 0.6rem;
+		padding: 2px 6px;
+		border-radius: 2px;
+		text-transform: uppercase;
+		font-weight: 700;
+		margin-right: 0.8rem;
+		display: inline-block;
+	}
+	.status-done { background: #4caf50; color: #000; }
+	.status-doing { background: var(--accent); color: #000; }
+	.status-pending { background: var(--border); color: var(--muted); }
+
+	.close-btn {
+		background: none;
+		border: none;
+		color: var(--muted);
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		cursor: pointer;
+	}
+
+	.close-btn:hover {
+		color: #ff4d4d;
+	}
+
+	.modal-body {
+		padding: 2rem;
+		overflow-y: auto;
+		flex-grow: 1;
+	}
+
+	#modal-log-content {
+		white-space: pre-wrap;
+		font-family: var(--font-mono);
+		font-size: 0.9rem;
+		line-height: 1.6;
+		color: var(--fg);
+		opacity: 0.9;
+	}
+
+	.task-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.empty-state {
+		font-size: 0.7rem;
+		color: var(--muted);
+		padding: 1rem;
+		border: 1px dashed var(--border);
+		text-align: center;
+		letter-spacing: 0.2em;
+	}
+
+	.git-info-wrapper {
+		margin-top: 0.5rem;
+	}
+
+	.dashboard-footer {
+		margin-top: 6rem;
+	}
+
+	.footer-line {
+		height: 1px;
+		background: var(--border);
+		margin-bottom: 1rem;
+	}
+
+	.footer-content {
+		display: flex;
+		justify-content: space-between;
+		font-size: 0.6rem;
+		color: var(--muted);
+		letter-spacing: 0.1em;
+	}
+
+	/* Mobile Adaptation (Phase 16) */
+	@media (max-width: 768px) {
+		.header-main {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1.5rem;
+		}
+
+		.stats-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr; /* 2 columns for better density */
+			width: 100%;
+			gap: 1rem;
+		}
+
+		.stat-item {
+			background: rgba(255, 255, 255, 0.03);
+			padding: 0.75rem;
+			border-radius: 4px;
+			width: 100%;
+		}
+
+		.blueprint-grid {
+			grid-template-columns: 1fr; /* Full width cards */
+			gap: 2rem;
+		}
+
+		.filter-bar {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 1rem;
+			margin-top: 1.5rem;
+		}
+
+		.filter-main {
+			flex-direction: column;
+			align-items: flex-start;
+			width: 100%;
+			gap: 0.5rem;
+		}
+
+		.filter-buttons {
+			display: flex;
+			flex-wrap: nowrap;
+			overflow-x: auto;
+			width: 100%;
+			gap: 0.5rem;
+			padding-bottom: 0.5rem;
+			-webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+		}
+
+		/* Hide scrollbar but keep functionality */
+		.filter-buttons::-webkit-scrollbar {
+			height: 2px;
+		}
+		.filter-buttons::-webkit-scrollbar-thumb {
+			background: var(--accent);
+		}
+
+		.filter-btn {
+			flex-shrink: 0; /* Prevent buttons from shrinking */
+			white-space: nowrap;
+		}
+
+		.search-box {
+			max-width: 100%;
+		}
+
+		h1 {
+			font-size: 1.8rem;
+			line-height: 1.2;
+		}
+
+		.dashboard-header {
+			margin-bottom: 2rem;
+		}
+	}
+</style>
+
+<script>
+	const filterButtons = document.querySelectorAll(".filter-btn");
+	const searchInput = document.getElementById(
+		"dashboard-search"
+	) as HTMLInputElement;
+	const projects = document.querySelectorAll(".project-section");
+
+	let activeFilter = "all";
+	let searchQuery = "";
+
+	function updateFilters() {
+		projects.forEach((project) => {
+			const projectEl = project as HTMLElement;
+			const category = projectEl.getAttribute("data-category");
+			const content = projectEl.innerText.toLowerCase();
+
+			const matchesCategory =
+				activeFilter === "all" || category === activeFilter;
+			const matchesSearch =
+				searchQuery === "" ||
+				content.includes(searchQuery.toLowerCase());
+
+			if (matchesCategory && matchesSearch) {
+				projectEl.style.display = "flex";
+			} else {
+				projectEl.style.display = "none";
+			}
+		});
+	}
+
+	filterButtons.forEach((btn) => {
+		btn.addEventListener("click", () => {
+			const filter = btn.getAttribute("data-filter");
+			if (!filter) return;
+
+			activeFilter = filter;
+
+			// Update active button
+			filterButtons.forEach((b) => b.classList.remove("active"));
+			btn.classList.add("active");
+
+			updateFilters();
+		});
+	});
+
+	searchInput?.addEventListener("input", (e) => {
+		searchQuery = (e.target as HTMLInputElement).value;
+		updateFilters();
+	});
+
+	// Modal Logic
+	const journalModal = document.getElementById("journal-modal");
+	const taskModal = document.getElementById("task-modal");
+	const closeJournalBtn = document.getElementById("close-journal-modal");
+	const closeTaskBtn = document.getElementById("close-task-modal");
+
+	const modalLogTitle = document.getElementById("modal-log-title");
+	const modalLogContent = document.getElementById("modal-log-content");
+	const viewLogBtns = document.querySelectorAll(".view-log-btn");
+
+	const modalTaskTitle = document.getElementById("modal-task-title");
+	const modalTaskContent = document.getElementById("modal-task-content");
+	const taskCards = document.querySelectorAll(".task-card");
+
+	// Journal Modal Trigger
+	viewLogBtns.forEach((btn) => {
+		btn.addEventListener("click", (e) => {
+			e.stopPropagation();
+			const title = btn.getAttribute("data-log-title");
+			const body = btn.getAttribute("data-log-body");
+
+			if (modalLogTitle) modalLogTitle.innerText = title || "";
+			if (modalLogContent) modalLogContent.innerText = body || "";
+
+			journalModal?.classList.add("active");
+			document.body.style.overflow = "hidden";
+		});
+	});
+
+	// Task Modal Trigger (Click)
+	taskCards.forEach((card) => {
+		card.addEventListener("click", () => {
+			const title = card.getAttribute("data-task-title");
+			const content = card.getAttribute("data-task-content");
+
+			if (modalTaskTitle) modalTaskTitle.innerText = title || "";
+			// Simple formatting for task content (handle frontmatter removal if any)
+			if (modalTaskContent) {
+				const displayContent = content
+					? content.replace(/^---[\s\S]*?---\n?/, "").trim()
+					: "NO CONTENT";
+				modalTaskContent.innerText = displayContent;
+			}
+
+			taskModal?.classList.add("active");
+			document.body.style.overflow = "hidden";
+		});
+
+		// Visual indicator for interactivity
+		(card as HTMLElement).style.cursor = "pointer";
+	});
+
+	// Close Logic
+	closeJournalBtn?.addEventListener("click", () => {
+		journalModal?.classList.remove("active");
+		document.body.style.overflow = "auto";
+	});
+
+	closeTaskBtn?.addEventListener("click", () => {
+		taskModal?.classList.remove("active");
+		document.body.style.overflow = "auto";
+	});
+
+	// Close on BG click
+	window.addEventListener("click", (e) => {
+		if (e.target === journalModal) {
+			journalModal?.classList.remove("active");
+			document.body.style.overflow = "auto";
+		}
+		if (e.target === taskModal) {
+			taskModal?.classList.remove("active");
+			document.body.style.overflow = "auto";
+		}
+		if (e.target === phaseModal) {
+			phaseModal?.classList.remove("active");
+			document.body.style.overflow = "auto";
+		}
+	});
+
+	// Phase Modal Logic
+	const phaseModal = document.getElementById("phase-modal");
+	const closePhaseBtn = document.getElementById("close-phase-modal");
+	const modalPhaseTitle = document.getElementById("modal-phase-title");
+	const modalPhaseContent = document.getElementById("modal-phase-content");
+	const phaseCards = document.querySelectorAll(".phase-card");
+
+	phaseCards.forEach((card) => {
+		card.addEventListener("click", () => {
+			const name = card.getAttribute("data-phase-name");
+			const status = card.getAttribute("data-phase-status");
+			const tasksJson = card.getAttribute("data-phase-tasks");
+			
+			if (modalPhaseTitle) {
+				modalPhaseTitle.innerHTML = `${name} <span style="font-size: 0.6em; margin-left:1rem; opacity:0.7; padding:2px 6px; border:1px solid currentColor; border-radius:4px;">${status?.toUpperCase()}</span>`;
+			}
+
+			if (modalPhaseContent && tasksJson) {
+				const tasks = JSON.parse(tasksJson);
+				
+				if (tasks.length === 0) {
+					modalPhaseContent.innerHTML = `<p style="opacity:0.6; text-align:center; padding:2rem;">NO_TASKS_DEFINED</p>`;
+				} else {
+					// Ensure the container is focusable for keyboard/trackpad scrolling
+					modalPhaseContent.setAttribute("tabindex", "0");
+					
+					const listHtml = tasks.map((t: any) => {
+						const isDone = t.status === 'done';
+						const isDoing = t.status === 'doing';
+						const statusIcon = isDone ? '[x]' : isDoing ? '[/]' : '[ ]';
+						const statusClass = t.status;
+						
+						
+						return `
+							<div class="modal-task-item">
+								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+									<span class="task-status-badge ${statusClass}">${statusIcon === '[x]' ? 'DONE' : statusIcon === '[/]' ? 'DOING' : 'PENDING'}</span>
+									<span style="font-size:0.7rem; color:var(--muted); font-family:var(--font-mono);">
+										${t.deadline ? `DUE: ${t.deadline}` : ''}
+									</span>
+								</div>
+								<div style="font-weight:700; font-size:1rem; color:var(--fg); margin-bottom:0.5rem; ${isDone ? 'text-decoration:line-through; opacity:0.6;' : ''}">
+									${t.title}
+								</div>
+								${t.content ? `<div style="font-size:0.85rem; opacity:0.8; line-height:1.5; white-space: pre-wrap;">${t.content.replace(/^---[\s\S]*?---\n?/, "").slice(0, 300)}...</div>` : ''}
+								<div style="margin-top:0.8rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; font-size:0.7rem; color:var(--muted); display:flex; gap:1rem;">
+									<span>PRIORITY: <span style="color:${t.priority === 'high' ? '#ff4d4d' : 'inherit'}">${t.priority?.toUpperCase() || 'MEDIUM'}</span></span>
+									<span style="opacity:0.5;">FILE: ${t.id}</span>
+								</div>
+							</div>
+						`;
+					}).join('');
+					
+					modalPhaseContent.innerHTML = listHtml;
+				}
+			}
+
+			phaseModal?.classList.add("active");
+			document.body.style.overflow = "hidden";
+		});
+	});
+
+	closePhaseBtn?.addEventListener("click", () => {
+		phaseModal?.classList.remove("active");
+		document.body.style.overflow = "auto";
+	});
+</script>

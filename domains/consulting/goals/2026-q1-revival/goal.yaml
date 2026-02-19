@@ -1,0 +1,9 @@
+goal_id: "2026-q1-revival"
+goal_title: "2026 Q1 Revenue Revival"
+deadline: "2026-03-31"
+status: "active"
+current_phase_id: "p1-recovery"
+goal_progress: 0
+phases:
+  - "p1-recovery"
+  - "p2-growth"

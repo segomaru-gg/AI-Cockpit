@@ -1,0 +1,147 @@
+---
+interface Props {
+	activity: Record<string, number>;
+	size?: 'small' | 'large';
+}
+
+import { getEndOfWeekLocal, toLocalISOString } from '../lib/dateUtils';
+
+const { activity, size = 'small' } = Astro.props;
+
+// Configuration
+const weeksToDisplay = size === 'large' ? 52 : 18;
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+// Standardized Date Logic
+const endDate = getEndOfWeekLocal();
+
+// Start weeksToDisplay weeks before that (Sunday)
+const startDate = new Date(endDate);
+startDate.setDate(endDate.getDate() - (weeksToDisplay * 7) + 1);
+
+const weeks = [];
+for (let w = 0; w < weeksToDisplay; w++) {
+    const weekDays = [];
+    let weekMonthLabel = '';
+    for (let d = 0; d < 7; d++) {
+        const dateObj = new Date(startDate);
+        dateObj.setDate(startDate.getDate() + (w * 7) + d);
+        
+        const dateStr = toLocalISOString(dateObj);
+        
+        const count = activity[dateStr] || 0;
+        let level = 0;
+        if (count > 0) level = 1;
+        if (count >= 2) level = 2;
+        if (count >= 4) level = 3;
+        if (count >= 6) level = 4;
+
+        if (dateObj.getDate() <= 7 && d === 0) {
+            weekMonthLabel = dateObj.toLocaleString('en-US', { month: 'short' });
+        }
+
+        weekDays.push({ dateStr, count, level, isFuture: dateObj > today });
+    }
+    weeks.push({ days: weekDays, monthLabel: weekMonthLabel });
+}
+
+const colors = {
+    empty: '#161b22',
+    1: '#0e4429',
+    2: '#006d32',
+    3: '#26a641',
+    4: '#39d353'
+};
+
+const cellW = size === 'large' ? '18px' : '22px';
+const cellH = size === 'large' ? '8px' : '10px';
+const gap = '3px';
+---
+
+<div class="activity-grid-container">
+    <div class="activity-god-mode" style="display: flex; gap: 8px; font-family: monospace; color: #888888; align-items: flex-start; justify-content: center;">
+        {/* Y Axis */}
+        <div style={`display: flex; flex-direction: column; gap: ${gap}; text-align: right; margin-top: 15px;`}>
+            <div style={`font-size: 0.5rem; height: ${cellH}; display: flex; align-items: center; justify-content: flex-end; opacity: 0.6;`}>SUN</div>
+            <div style={`height: ${cellH};`}></div>
+            <div style={`font-size: 0.5rem; height: ${cellH}; display: flex; align-items: center; justify-content: flex-end; opacity: 0.6;`}>TUE</div>
+            <div style={`height: ${cellH};`}></div>
+            <div style={`font-size: 0.5rem; height: ${cellH}; display: flex; align-items: center; justify-content: flex-end; opacity: 0.6;`}>THU</div>
+            <div style={`height: ${cellH};`}></div>
+            <div style={`font-size: 0.5rem; height: ${cellH}; display: flex; align-items: center; justify-content: flex-end; opacity: 0.6;`}>SAT</div>
+        </div>
+
+        {/* Grid Area */}
+        <div class="grid-scroll-area" style={`display: flex; gap: ${gap};`}>
+            {weeks.map(week => (
+                <div style={`display: flex; flex-direction: column; gap: ${gap}; flex-shrink: 0;`}>
+                    <div style="font-size: 0.6rem; height: 15px; text-transform: uppercase;">{week.monthLabel}</div>
+                    {week.days.map(day => (
+                        <div 
+                            title={`${day.dateStr}: ${day.count} events`}
+                            style={`
+                                width: ${cellW}; 
+                                height: ${cellH}; 
+                                background: ${day.isFuture ? 'transparent' : (colors[day.level] || colors.empty)};
+                                border-radius: 1px;
+                                box-shadow: ${day.level === 4 ? '0 0 5px #39d353' : 'none'};
+                            `}
+                        ></div>
+                    ))}
+                </div>
+            ))}
+        </div>
+    </div>
+</div>
+
+<style>
+    .activity-grid-container {
+        width: 100%;
+        overflow: hidden;
+    }
+    
+    .grid-scroll-area {
+        overflow-x: auto;
+        padding-bottom: 4px; /* Space for scrollbar */
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        scroll-behavior: smooth;
+    }
+
+    .grid-scroll-area::-webkit-scrollbar {
+        display: none; /* Chrome/Safari */
+    }
+
+    /* Mobile refinements */
+    @media (max-width: 768px) {
+        .activity-god-mode {
+            justify-content: flex-start !important;
+        }
+    }
+</style>
+
+<script>
+    // Auto-scroll to end (most recent date) on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const scrollAreas = document.querySelectorAll('.grid-scroll-area');
+        scrollAreas.forEach(area => {
+            area.scrollLeft = area.scrollWidth;
+        });
+    });
+</script>
+
+<div id="debug-activity" style="display:none;" data-activity={JSON.stringify(activity)}></div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('debug') === 'true') {
+        const debugEl = document.getElementById('debug-activity');
+        if (debugEl) {
+            console.group('🔍 Activity Grid Debug (god mode)');
+            console.log('Raw Activity Data:', JSON.parse(debugEl.dataset.activity || '{}'));
+            console.log('To visualize this data, ensure your journal filenames match YYYY-MM-DD format.');
+            console.groupEnd();
+        }
+    }
+</script>

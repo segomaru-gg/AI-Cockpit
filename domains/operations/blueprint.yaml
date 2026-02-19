@@ -1,0 +1,9 @@
+id: boabase
+name: "BoaBASE Management"
+active_goal_id: 
+  - "ops-to-culture-transition"
+  - "concept-driven-agreement"
+last_update: "2026-02-18"
+category: "business"
+status: "active"
+priority: 2
