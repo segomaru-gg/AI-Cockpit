@@ -1,0 +1,28 @@
+# Global Goals Configuration
+# 四半期ごとのグローバル目標を定義
+# alignment: 各ドメインがこの目標にどの程度関連するか (1-5)
+
+current_quarter: "2026-Q1"
+
+goals:
+  - id: "financial-independence"
+    title: "経済的自立の基盤構築"
+    description: "コンサルティング収益の安定化とブランド事業の立ち上げにより、持続可能な収入基盤を作る"
+    priority: 1
+    alignment:
+      consulting: 5
+      brand: 4
+      cockpit-core: 2
+      operations: 1
+      learning: 3
+
+  - id: "skill-growth"
+    title: "英語力とプロフェッショナルスキルの向上"
+    description: "TOEIC 700点達成、コンサル品質の向上"
+    priority: 2
+    alignment:
+      learning: 5
+      consulting: 3
+      brand: 1
+      cockpit-core: 1
+      operations: 1

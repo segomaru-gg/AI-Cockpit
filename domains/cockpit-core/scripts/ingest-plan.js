@@ -12,24 +12,42 @@ const COCKPIT_ROOT = path.resolve(__dirname, '../../../');
 function findProject(targetName) {
     if (!targetName) return null;
 
-    // 1. Direct match (Case Insensitive)
     const domainsDir = path.join(COCKPIT_ROOT, 'domains');
-    if (fs.existsSync(domainsDir)) {
-        const entries = fs.readdirSync(domainsDir, { withFileTypes: true });
-        for (const entry of entries) {
-            if (entry.isDirectory() && entry.name.toLowerCase() === targetName.toLowerCase()) {
-                return { name: entry.name, path: path.join(domainsDir, entry.name) };
+    if (!fs.existsSync(domainsDir)) return null;
+
+    // 1. Direct match at Level 1 (Case Insensitive)
+    const entries = fs.readdirSync(domainsDir, { withFileTypes: true });
+    for (const entry of entries) {
+        if (entry.isDirectory() && entry.name.toLowerCase() === targetName.toLowerCase()) {
+            const dirPath = path.join(domainsDir, entry.name);
+            if (fs.existsSync(path.join(dirPath, 'blueprint.yaml'))) {
+                return { name: entry.name, path: dirPath };
             }
         }
     }
 
-    // 2. Alias match
+    // 2. Direct match at Level 2 (domains/<domain>/<subproject>)
+    for (const entry of entries) {
+        if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+        const domainPath = path.join(domainsDir, entry.name);
+        const subEntries = fs.readdirSync(domainPath, { withFileTypes: true });
+        for (const sub of subEntries) {
+            if (sub.isDirectory() && sub.name.toLowerCase() === targetName.toLowerCase()) {
+                const subPath = path.join(domainPath, sub.name);
+                if (fs.existsSync(path.join(subPath, 'blueprint.yaml'))) {
+                    return { name: sub.name, path: subPath };
+                }
+            }
+        }
+    }
+
+    // 3. Alias match
     const aliases = {
         'bp': 'cockpit-core',
-        'ae': 'portfolio',
-        'od': 'consulting',
-        'bb': 'operations',
-        'eg': 'learning'
+        'ae': 'brand',
+        'od': 'oduman',
+        'bb': 'boabase',
+        'eg': 'toeic'
     };
     const resolved = aliases[targetName.toLowerCase()];
     if (resolved) return findProject(resolved);

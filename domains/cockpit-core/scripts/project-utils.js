@@ -18,17 +18,33 @@ export function getProjects() {
     const domainsDir = path.join(COCKPIT_ROOT, 'domains');
     if (!fs.existsSync(domainsDir)) return [];
 
+    const projects = [];
     const entries = fs.readdirSync(domainsDir, { withFileTypes: true });
-    return entries
-        .filter(entry => {
-            if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name === 'node_modules') return false;
-            const blueprintPath = path.join(domainsDir, entry.name, 'blueprint.yaml');
-            return fs.existsSync(blueprintPath);
-        })
-        .map(entry => ({
-            name: entry.name,
-            path: path.join(domainsDir, entry.name)
-        }));
+
+    for (const entry of entries) {
+        if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+
+        const dirPath = path.join(domainsDir, entry.name);
+        const blueprintPath = path.join(dirPath, 'blueprint.yaml');
+
+        if (fs.existsSync(blueprintPath)) {
+            // Level 1: domains/<project>/blueprint.yaml
+            projects.push({ name: entry.name, path: dirPath });
+        } else {
+            // Level 2: domains/<domain>/<subproject>/blueprint.yaml
+            const subEntries = fs.readdirSync(dirPath, { withFileTypes: true });
+            for (const sub of subEntries) {
+                if (!sub.isDirectory() || sub.name.startsWith('.')) continue;
+                const subPath = path.join(dirPath, sub.name);
+                const subBlueprint = path.join(subPath, 'blueprint.yaml');
+                if (fs.existsSync(subBlueprint)) {
+                    projects.push({ name: sub.name, path: subPath });
+                }
+            }
+        }
+    }
+
+    return projects;
 }
 
 /**
@@ -42,16 +58,16 @@ export function findProject(name) {
     // Project Aliases
     const aliases = {
         'bp': 'cockpit-core',
-        'ae': 'portfolio',
-        'od': 'consulting',
-        'bb': 'operations',
-        'eg': 'learning',
+        'ae': 'brand',
+        'od': 'oduman',
+        'bb': 'boabase',
+        'eg': 'toeic',
         // Old names for backward compatibility
         'blueprint': 'cockpit-core',
-        'aeternum': 'portfolio',
-        'oduman': 'consulting',
-        'boabase': 'operations',
-        'toeic': 'learning'
+        'aeternum': 'brand',
+        'oduman': 'oduman',
+        'boabase': 'boabase',
+        'toeic': 'toeic'
     };
 
     const normalized = name.toLowerCase();

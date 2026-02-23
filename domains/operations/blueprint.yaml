@@ -1,9 +1,6 @@
-id: boabase
-name: "BoaBASE Management"
-active_goal_id: 
-  - "ops-to-culture-transition"
-  - "concept-driven-agreement"
-last_update: "2026-02-18"
-category: "business"
+id: operations
+name: "Operations (事務・雑務)"
+category: "ops"
 status: "active"
-priority: 2
+priority: 3
+active_goal_id:

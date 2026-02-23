@@ -4,10 +4,14 @@ import TaskCard from "../components/TaskCard.astro";
 import ProgressBar from "../components/ProgressBar.astro";
 import ActivityGrid from "../components/ActivityGrid.astro";
 import GitStatus from "../components/GitStatus.astro";
-import { discoverProjects } from "../lib/projects";
+import { discoverProjects, loadGlobalGoals } from "../lib/projects";
+import path from "node:path";
 
-const cockpitRoot = "/Users/ryosaigo/AI-Cockpit";
-const projects = await discoverProjects(cockpitRoot);
+const cockpitRoot = path.resolve(process.cwd(), "../");
+const globalGoals = loadGlobalGoals(cockpitRoot);
+const allProjects = await discoverProjects(cockpitRoot);
+// Sort projects by global alignment score (highest first)
+const projects = allProjects.sort((a, b) => b.globalAlignment - a.globalAlignment);
 
 // Global Activity Aggregation
 const globalActivity: Record<string, number> = {};
@@ -32,7 +36,7 @@ const overallProgress =
 		  projectStats.projectsCount
 		: 0;
 
-const getAdvice = (projects: any[]) => {
+const getAdvice = (projects: any[], globalGoals: any) => {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
@@ -56,13 +60,45 @@ const getAdvice = (projects: any[]) => {
 		}
 	}
 
-	// 2. Warning: Active Phases without Deadlines
+	// 2. Strategy: High-alignment domain with no recent activity
+	if (globalGoals) {
+		const highAligned = projects
+			.filter(p => p.globalAlignment >= 4)
+			.sort((a: any, b: any) => b.globalAlignment - a.globalAlignment);
+
+		for (const p of highAligned) {
+			const recentDays = Object.keys(p.activity).filter(d => {
+				const diff = today.getTime() - new Date(d).getTime();
+				return diff < 7 * 24 * 60 * 60 * 1000;
+			});
+			if (recentDays.length === 0) {
+				return `[STRATEGY] ${p.name} はグローバル目標への貢献度が高い (★${Math.round(p.globalAlignment)}) ですが、直近7日間の活動がありません。優先的に着手してください。`;
+			}
+		}
+
+		// 3. Balance: Low-alignment domain consuming too much focus
+		const lowAligned = projects.filter(p => p.globalAlignment <= 2);
+		for (const p of lowAligned) {
+			const recentDays = Object.keys(p.activity).filter(d => {
+				const diff = today.getTime() - new Date(d).getTime();
+				return diff < 7 * 24 * 60 * 60 * 1000;
+			});
+			if (recentDays.length >= 5) {
+				const topProject = highAligned[0];
+				if (topProject) {
+					return `[BALANCE] ${p.name} への集中が見られますが、グローバル目標との整合度が低いです。${topProject.name} の進捗を確認してください。`;
+				}
+			}
+		}
+	}
+
+	// 4. Warning: Active Phases without Deadlines
 	const noDeadlinePhase = projects.find(p => p.activeGoal?.phases.some((ph: any) => ph.status === 'active' && !ph.deadline));
 	if (noDeadlinePhase) {
 		return `[ATTENTION] ${noDeadlinePhase.name} のActive Phaseに期限が設定されていません。phase.yamlにdeadlineを追加してください。`;
 	}
 
-	// 3. General Advice based on lowest progress
+	// 5. General Advice based on lowest progress
 	const lowestProject = projects
 		.filter(p => p.activeGoal && p.activeGoal.progress < 100)
 		.sort((a, b) => (a.activeGoal?.progress || 0) - (b.activeGoal?.progress || 0))[0];
@@ -74,20 +110,9 @@ const getAdvice = (projects: any[]) => {
 	return "全プロジェクトの目標が達成されています。新たなGoalを設定するか、次のフェーズへ移行してください。";
 };
 
-// Domain-specific statistics
-// Domain-specific statistics (Goal-centric)
-const getCategoryStats = (cat: string) => {
-	const catProjects = projects.filter((p) => p.category === cat && p.activeGoal);
-	if (catProjects.length === 0) return null;
+// Domain categories (auto-derived from folder structure)
+const domainCategories = [...new Set(projects.map(p => p.category))].sort();
 
-	const totalProgress = catProjects.reduce((acc, p) => acc + (p.activeGoal?.progress || 0), 0);
-	const avgProgress = Math.round(totalProgress / catProjects.length);
-
-	return {
-		count: catProjects.length,
-		pct: avgProgress,
-	};
-};
 	// Focus First Logic: Identify the "Current Mission"
 	// Priority: BluePrint > Others, then by lowest progress active goal.
 	const currentMission = projects.find(p => p.name === 'BluePrint' && p.activeGoal && p.activeGoal.progress < 100) 
@@ -131,14 +156,31 @@ const getCategoryStats = (cat: string) => {
 
 		<div class="advice-panel">
 			<span class="system-label">AI_TACTICAL_ADVICE //</span>
-			<p class="advice-text">{getAdvice(projects)}</p>
+			<p class="advice-text">{getAdvice(projects, globalGoals)}</p>
 		</div>
+
+		{globalGoals && globalGoals.goals.length > 0 && (
+			<div class="global-goals-section">
+				<span class="system-label">GLOBAL_OBJECTIVE // {globalGoals.current_quarter}</span>
+				<div class="global-goals-list">
+					{globalGoals.goals.map((g, i) => (
+						<div class="global-goal-card">
+							<div class="goal-priority-badge">P{g.priority}</div>
+							<div class="goal-info">
+								<span class="goal-name">{g.title}</span>
+								<span class="goal-desc">{g.description}</span>
+							</div>
+						</div>
+					))}
+				</div>
+			</div>
+		)}
 
 		<nav class="filter-bar">
 			<div class="filter-main">
 				<div class="filter-buttons">
 					<button class="filter-btn active cat-all" data-filter="all">ALL</button>
-					{["business", "ops", "brand", "personal"].map((cat) => (
+					{domainCategories.map((cat) => (
 						<button class={`filter-btn cat-${cat}`} data-filter={cat}>{cat}</button>
 					))}
 				</div>
@@ -164,20 +206,12 @@ const getCategoryStats = (cat: string) => {
 								{project.category}
 							</span>
 							<span class="system-label">PROJECT_MODULE</span>
-							{project.dashboardUrl ? (
-								<a
-									href={project.dashboardUrl}
-									class="project-link"
-									target="_blank"
-								>
-									<h2>
-										{project.name}{" "}
-										<span class="link-icon">↗</span>
-									</h2>
-								</a>
-							) : (
-								<h2>{project.name}</h2>
+							{project.globalAlignment > 0 && (
+								<span class="alignment-badge" title={`Global Alignment: ${project.globalAlignment}/5`}>
+									{'★'.repeat(Math.round(project.globalAlignment))}{'☆'.repeat(5 - Math.round(project.globalAlignment))}
+								</span>
 							)}
+							<h2>{project.name}</h2>
 						</div>
 						<div class="project-activity">
 							<span class="system-label">PROJECT_MOMENTUM /</span>
@@ -606,6 +640,71 @@ const getCategoryStats = (cat: string) => {
 		opacity: 1;
 	}
 
+	/* Global Goals Section */
+	.global-goals-section {
+		padding: 1.5rem;
+		background: rgba(255, 255, 255, 0.02);
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 0.5rem;
+		margin-bottom: 1rem;
+	}
+
+	.global-goals-list {
+		display: flex;
+		gap: 1rem;
+		margin-top: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.global-goal-card {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+		flex: 1;
+		min-width: 280px;
+		padding: 1rem;
+		background: rgba(255, 255, 255, 0.03);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 0.5rem;
+	}
+
+	.goal-priority-badge {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		font-weight: 700;
+		background: #f59e0b;
+		color: black;
+		padding: 0.2rem 0.5rem;
+		border-radius: 0.25rem;
+		flex-shrink: 0;
+	}
+
+	.goal-info {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.goal-name {
+		font-weight: 700;
+		font-size: 0.95rem;
+		color: var(--fg);
+	}
+
+	.goal-desc {
+		font-size: 0.75rem;
+		color: var(--muted);
+		line-height: 1.4;
+	}
+
+	/* Alignment Badge */
+	.alignment-badge {
+		font-size: 0.65rem;
+		letter-spacing: 0.05em;
+		color: #f59e0b;
+		opacity: 0.8;
+	}
+
 	.category-badge,
 	.filter-btn {
 		font-size: 0.6rem;
@@ -653,28 +752,33 @@ const getCategoryStats = (cat: string) => {
 	}
 
 	.cat-all {
-		background: #ffffff; /* Pure White */
+		background: #ffffff;
 		color: #000000;
 	}
 
-	.cat-business {
-		background: #ff4d4d; /* Bright Red */
-		color: white;
-	}
-
-	.cat-ops {
-		background: #ffd700; /* Gold/Yellow */
+	.cat-cockpit-core {
+		background: #60a5fa; /* Blue */
 		color: black;
 	}
 
-	.cat-personal {
-		background: #00ff7f; /* Spring Green */
+	.cat-consulting {
+		background: #f97316; /* Orange */
+		color: black;
+	}
+
+	.cat-learning {
+		background: #34d399; /* Emerald */
+		color: black;
+	}
+
+	.cat-operations {
+		background: #a78bfa; /* Violet */
 		color: black;
 	}
 
 	.cat-brand {
-		background: #9370db; /* Medium Purple */
-		color: white;
+		background: #fb7185; /* Rose */
+		color: black;
 	}
 
 	.filter-btn.active {
@@ -1367,7 +1471,7 @@ const getCategoryStats = (cat: string) => {
 								<div style="font-weight:700; font-size:1rem; color:var(--fg); margin-bottom:0.5rem; ${isDone ? 'text-decoration:line-through; opacity:0.6;' : ''}">
 									${t.title}
 								</div>
-								${t.content ? `<div style="font-size:0.85rem; opacity:0.8; line-height:1.5; white-space: pre-wrap;">${t.content.replace(/^---[\s\S]*?---\n?/, "").slice(0, 300)}...</div>` : ''}
+								${t.content ? `<div style="font-size:0.85rem; opacity:0.8; line-height:1.5; white-space: pre-wrap;">${t.content.replace(/^---[\s\S]*?---\n?/, "")}</div>` : ''}
 								<div style="margin-top:0.8rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; font-size:0.7rem; color:var(--muted); display:flex; gap:1rem;">
 									<span>PRIORITY: <span style="color:${t.priority === 'high' ? '#ff4d4d' : 'inherit'}">${t.priority?.toUpperCase() || 'MEDIUM'}</span></span>
 									<span style="opacity:0.5;">FILE: ${t.id}</span>
