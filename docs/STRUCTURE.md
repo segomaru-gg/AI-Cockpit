@@ -7,16 +7,21 @@ This repository follows a "Life Operating System" architecture, where distinct d
 ```text
 AI-Cockpit/
 ├── domains/                 # The core functional areas
-│   ├── cockpit-core/        # Central Dashboard (The "Brain")
-│   ├── consulting/          # Business & Strategy (formerly Oduman)
-│   ├── learning/            # Growth & Studies (formerly TOEIC)
-│   ├── operations/          # Life Admin & Ops (formerly BoaBASE)
-│   └── portfolio/           # Brand Identity (formerly aeternum)
+│   ├── cockpit-core/        # Central Dashboard (Astro)
+│   ├── consulting/          # Business & Strategy
+│   │   ├── oduman/          #   └ Oduman (EC / shisha business)
+│   │   └── boabase/         #   └ BoaBASE (consulting ops)
+│   ├── brand/               # Personal Brand & Portfolio (Aeternum)
+│   ├── learning/            # Growth & Studies
+│   │   └── toeic/           #   └ TOEIC study tracker
+│   └── operations/          # Life Admin & Ops
 ├── docs/                    # Documentation
 │   ├── charter/             # Project charters and mandates
 │   └── STRUCTURE.md         # This file
 ├── config/                  # Configuration files
-└── scripts/                 # Global maintenance scripts
+├── scripts/                 # Sync & maintenance scripts
+├── inbox/                   # Mobile notes (from Obsidian)
+└── cockpit.yaml             # Global goals & quarter config
 ```
 
 ## The Blueprint Protocol
@@ -41,8 +46,8 @@ Every domain project should follow this standard:
 
 ## Domain Roles
 
-- **Cockpit Base (cockpit-core)**: The Astro-based web dashboard that aggregates everything. It reads data from sibling directories.
-- **Operations**: Routine tasks, finances, travel, home maintenance.
-- **Consulting**: Client work, ventures, business planning.
+- **Cockpit Core (cockpit-core)**: The Astro-based web dashboard that aggregates everything. It reads data from sibling directories.
+- **Consulting**: Client work, ventures, business planning. Contains sub-projects (Oduman, BoaBASE).
+- **Brand**: Public-facing presence, portfolio, and brand identity (Aeternum).
 - **Learning**: Skill acquisition, certifications, languages.
-- **Portfolio**: Public-facing presence, blog, showcase.
+- **Operations**: Routine tasks, finances, travel, home maintenance.
