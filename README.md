@@ -12,6 +12,7 @@
 AI-Cockpit/
 ├── domains/                    # All life domains live here
 │   ├── cockpit-core/           # Master Dashboard (Astro)
+│   │   └── DASHBOARD.md        #   └ Markdown dashboard (for Obsidian)
 │   ├── consulting/             # Business & strategy
 │   │   ├── oduman/             #   └ Oduman (EC / shisha business)
 │   │   └── boabase/            #   └ BoaBASE (consulting ops)
@@ -23,10 +24,14 @@ AI-Cockpit/
 ├── config/                     # Global configuration
 ├── scripts/                    # Maintenance & sync scripts
 ├── inbox/                      # Mobile notes landing zone (from Obsidian)
+├── AGENTS.md                   # AI Agent Handbook (universal rules)
+├── CLAUDE.md                   # Claude-specific pointer to AGENTS.md
 └── cockpit.yaml                # Global goals & quarter config
 ```
 
 Each domain directory contains a `blueprint.yaml` identity file, a `tasks/` directory for task management, and a `journal/` directory for decision logs. This is the **Blueprint Protocol** — see [docs/STRUCTURE.md](docs/STRUCTURE.md) for details.
+
+All AI agents (Gemini, Claude, etc.) follow the rules defined in **[AGENTS.md](AGENTS.md)**.
 
 ---
 
@@ -109,6 +114,15 @@ Every domain project follows a standard protocol:
 
 The Cockpit Core dashboard automatically discovers and aggregates data from all domain projects.
 
+## 🤖 AI Agent Rules
+
+All AI agents operating in this repository must follow **[AGENTS.md](AGENTS.md)**.
+
+| File | Purpose |
+|---|---|
+| `AGENTS.md` | Universal agent handbook (canonical) |
+| `CLAUDE.md` | Claude-specific pointer to AGENTS.md |
+
 ---
 
 ---
@@ -123,6 +137,7 @@ The Cockpit Core dashboard automatically discovers and aggregates data from all 
 AI-Cockpit/
 ├── domains/                    # 全ての活動領域
 │   ├── cockpit-core/           # マスター・ダッシュボード (Astro)
+│   │   └── DASHBOARD.md        #   └ Markdown ダッシュボード (Obsidian用)
 │   ├── consulting/             # ビジネス・戦略
 │   │   ├── oduman/             #   └ Oduman (EC / シーシャ事業)
 │   │   └── boabase/            #   └ BoaBASE (コンサルティング)
@@ -134,10 +149,14 @@ AI-Cockpit/
 ├── config/                     # グローバル設定
 ├── scripts/                    # メンテナンス・同期スクリプト
 ├── inbox/                      # モバイルメモの受信箱 (Obsidian から)
+├── AGENTS.md                   # AIエージェント行動規範
+├── CLAUDE.md                   # Claude用ポインタ (→ AGENTS.md)
 └── cockpit.yaml                # グローバル目標・四半期設定
 ```
 
 各ドメインには `blueprint.yaml`（プロジェクト定義）、`tasks/`（タスク管理）、`journal/`（意思決定ログ）が含まれます。詳細は [docs/STRUCTURE.md](docs/STRUCTURE.md) を参照してください。
+
+すべてのAIエージェントは **[AGENTS.md](AGENTS.md)** に定義された行動規範に従います。
 
 ## 🚀 起動方法
 
