@@ -1,0 +1,315 @@
+/* =========================================
+   Aeternum Brand LP Styles - Premium UI Refresh
+   ========================================= */
+
+:root {
+  --color-main: #356036;     /* Deep forest green */
+  --color-main-light: rgba(53, 96, 54, 0.3);
+  --color-text: #2f2f2f;     /* Expensive rich dark gray */
+  --color-bg: #Fcfaf7;       /* Refined paper cream */
+  --font-mincho: "Times New Roman", "Noto Serif JP", serif; /* Editorial feel */
+}
+
+/* CSS Scroll Snapping */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  background-color: var(--color-bg);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-mincho);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 2.6;
+  font-size: 13.5px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  opacity: 0;
+  transition: opacity 2s cubic-bezier(0.19, 1, 0.22, 1);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 微かなヴィネット（四隅がごく僅かに暗くなる奥行き演出） */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, transparent 0%, rgba(30, 25, 20, 0.02) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.loaded {
+  opacity: 1;
+}
+
+p {
+  letter-spacing: 0.16em;
+}
+
+/* Typography Refinements */
+h1.brand-name {
+  font-size: 2.2rem; /* 静けさを保つ、程よい大きさに調整 */
+  letter-spacing: 0.08em; /* 詰まりすぎないよう極わずかに空気を入れる */
+  font-weight: 300; /* 細身にすることで静寂な佇まいに */
+  color: rgba(30, 30, 30, 0.9); /* 真っ黒から少しだけ落とし、紙に馴染ませる */
+  margin-top: 24px;
+  margin-bottom: 0;
+  line-height: 1;
+  text-indent: 0;
+}
+
+.brand-subname {
+  font-size: 0.75rem; /* タイトルに合わせて微小調整 */
+  letter-spacing: 0.15em;
+  color: rgba(47, 47, 47, 0.65); /* 馴染むグレーに */
+  margin-top: 8px; /* 少しだけ呼吸の隙間を開ける */
+  line-height: 1;
+  font-style: normal;
+}
+
+/* 美しい見出しの下線 */
+h2.section-title {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: rgba(47, 47, 47, 0.6);
+  margin-bottom: 56px;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 300;
+  position: relative;
+}
+
+/* 見出しのテキスト長に対して美しいアスペクト比の下線 */
+h2.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background-color: var(--color-main-light);
+}
+
+.site-wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 10%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100vh; 
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  position: relative;
+}
+
+/* Hero Content */
+.hero-content {
+  margin-top: -10vh;
+}
+
+.brand-logo {
+  max-width: 220px; /* 余白をより際立たせるために微縮小 */
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.95; 
+}
+
+/* 雫が落ちるような滑らかなスクロールインジケーター */
+.scroll-indicator {
+  position: absolute;
+  bottom: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, var(--color-main) 50%, transparent);
+  animation: scroll-pulse 3s cubic-bezier(0.19, 1, 0.22, 1) infinite;
+  opacity: 0.4;
+}
+
+@keyframes scroll-pulse {
+  0% { transform: translateX(-50%) translateY(-15px) scaleY(0.7); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: translateX(-50%) translateY(15px) scaleY(1.3); opacity: 0; }
+}
+
+/* Text Blocks */
+.text-block {
+  width: 100%;
+}
+
+.text-block p {
+  color: var(--color-text);
+  font-weight: 300;
+  position: relative;
+}
+
+/* Practice Items */
+.practice-item {
+  margin-bottom: 64px;
+}
+.practice-item:last-child { margin-bottom: 0; }
+
+.practice-name {
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  font-weight: 400;
+  color: var(--color-main);
+  margin-bottom: 20px;
+}
+
+.practice-desc {
+  font-size: 11.5px; /* フォントを少し小さくし、展示物のキャプションのような佇まいに */
+  line-height: 2.2; /* 行間隔を狭め、文章の塊としての重力を高める */
+  color: rgba(47, 47, 47, 0.85); /* もう少しだけ透かして控えめに */
+}
+
+.practice-note {
+  font-size: 0.7rem;
+  color: rgba(47, 47, 47, 0.4);
+  letter-spacing: 0.15em;
+  display: block;
+  margin-top: 16px;
+  font-style: italic; /* 時刻や補足情報を洋書のように */
+}
+
+/* Event Items */
+.event-item { margin-top: 8px; }
+
+.event-date {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: rgba(47, 47, 47, 0.5) !important;
+  margin-bottom: 16px;
+}
+
+.event-name {
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  font-weight: 400;
+  color: var(--color-main);
+  margin-bottom: 32px;
+  line-height: 2.2;
+}
+
+.event-desc {
+  font-size: 13.5px;
+  margin-bottom: 40px;
+  line-height: 2.8;
+}
+
+.event-location {
+  font-size: 0.75rem;
+  color: rgba(47, 47, 47, 0.6) !important;
+  line-height: 2.2;
+  letter-spacing: 0.15em;
+}
+
+.location-address {
+  font-size: 0.7rem;
+  color: rgba(47, 47, 47, 0.4);
+  letter-spacing: 0.12em;
+  display: block;
+  margin-top: 8px;
+  line-height: 2;
+}
+
+/* 息をするように現れる極上のフェードアップ */
+.scroll-reveal {
+  opacity: 0;
+  /* 少しだけ縮小状態から広がるようにスケール変化を付与 */
+  transform: translateY(30px) scale(0.98);
+  transition: opacity 2s cubic-bezier(0.19, 1, 0.22, 1), transform 2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Contact Links */
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 80px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  width: 280px;
+  margin: 0 auto;
+}
+
+.contact-label {
+  color: rgba(47, 47, 47, 0.4);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  width: 65px;
+  text-align: left;
+}
+
+/* 拡張する美しいアンダーライン・アニメーション */
+.contact-link {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  color: var(--color-main);
+  letter-spacing: 0.15em;
+  font-size: 0.9rem;
+  padding-bottom: 6px;
+}
+
+.contact-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0); /* 初期状態は線なし */
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  background-color: var(--color-main-light);
+  transform-origin: bottom right;
+  transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* ホバー時に左から右へ線が伸びる */
+.contact-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.copyright {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: rgba(47, 47, 47, 0.3);
+}
+
+@media (min-width: 768px) {
+  .site-wrapper { max-width: 580px; /* パスワードのように空間を確保 */ }
+  .brand-logo { max-width: 280px; }
+  .scroll-reveal {
+    transform: translateY(40px) scale(0.99); /* PCではより大きなストロークに */
+  }
+}

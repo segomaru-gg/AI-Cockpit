@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aeternum | the vintage gallery</title>
+  <meta name="description" content="Aeternumは、古き良きものを、良き未来へつなぐ文化的アーカイブ／蒐集構想です。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="mobile-base">
+  <div class="site-wrapper fade-in">
+    <!-- Hero Section -->
+    <header class="section hero">
+      <div class="hero-content scroll-reveal">
+        <img src="images/logo.png" alt="Aeternum Logo" class="brand-logo">
+        <h1 class="brand-name">Aeternum</h1>
+        <p class="brand-subname">the vintage gallery</p>
+      </div>
+      <div class="scroll-indicator"></div>
+    </header>
+
+    <!-- フィロソフィ -->
+    <section class="section philosophy">
+      <div class="text-block scroll-reveal">
+        <h2 class="section-title">Philosophy</h2>
+        <p>
+          売ることよりも、残すこと。<br>
+          飾ることよりも、記述すること。<br><br>
+          Aeternumは、<br>
+          古物、記憶、思想、文化の断片を<br>
+          “意味ごと”受け取り、<br><br>
+          それらを構造として記述し、<br>
+          時間を越えて継承可能にするための<br>
+          蒐集構想です。
+        </p>
+      </div>
+    </section>
+
+    <!-- 実践事項 -->
+    <section class="section practice">
+      <div class="text-block scroll-reveal">
+        <h2 class="section-title">Practice</h2>
+        
+        <div class="practice-item">
+          <h3 class="practice-name">古物・雑貨</h3>
+          <p class="practice-desc">
+            Aeternumが蒐集するモノの中から、<br>
+            “意味を次へと継承できる”と<br>
+            判断したものを選定し、<br>
+            ECおよびPOPUPを通じて届けていきます。<br>
+            単なる売買ではなく、<br>
+            価値の文脈ごと手渡すことを前提とした<br>
+            実践領域です。
+          </p>
+        </div>
+
+        <div class="practice-item">
+          <h3 class="practice-name">toB支援</h3>
+          <p class="practice-desc">
+            Aeternumを<br>
+            「意味を継承する構造」として捉え、<br>
+            事業者がコンセプトに対して<br>
+            欺瞞なく経営できる状態を設計します。<br>
+            思想・文脈・構造の三層から、<br>
+            ブランドおよび事業の駆動原理<br>
+            そのものに関与します。<br>
+            <span class="practice-note">2026.04 -</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 直近のイベント -->
+    <section class="section recent-events">
+      <div class="text-block scroll-reveal">
+        <h2 class="section-title">Recent Events</h2>
+        <div class="event-item">
+          <p class="event-date">2026.03.21 / 18:00 - 24:00</p>
+          <h3 class="event-name">POPUP<br>Cozynight Sangria Edit.</h3>
+          <p class="event-desc">
+            Aeternumとして初めての<br>
+            POPUP出店。<br><br>
+            蒐集物、オリジナルグッズの<br>
+            販売を行います。
+          </p>
+          <p class="event-location">
+            @ CozyStudioBoaBASE<br>
+            <span class="location-address">兵庫県神戸市中央区元町通2-8-6<br>村田ビル4F</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact / Footer -->
+    <footer class="section footer">
+      <div class="text-block scroll-reveal">
+        <h2 class="section-title">Contact</h2>
+        <div class="contact-links">
+          <div class="contact-row">
+            <span class="contact-label">Email :</span>
+            <a href="mailto:contact@aeternum-gg.jp" class="contact-link">contact@aeternum-gg.jp</a>
+          </div>
+          <div class="contact-row">
+            <span class="contact-label">Insta :</span>
+            <a href="https://www.instagram.com/aeternum.gg/" target="_blank" rel="noopener noreferrer" class="contact-link">@aeternum.gg</a>
+          </div>
+        </div>
+        <p class="copyright">&copy; Aeternum</p>
+      </div>
+    </footer>
+  </div>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(() => {
+        document.body.classList.add("loaded");
+      }, 100);
+
+      const obsOptions = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.3
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          } else {
+            entry.target.classList.remove("is-visible");
+          }
+        });
+      }, obsOptions);
+
+      const revealElements = document.querySelectorAll(".scroll-reveal");
+      revealElements.forEach(el => observer.observe(el));
+    });
+  </script>
+</body>
+</html>
