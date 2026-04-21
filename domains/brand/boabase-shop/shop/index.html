@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="boabase online shop — shisha item / original goods / art / antique goods">
+  <title>SHOP | boabase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shop.css">
+</head>
+<body>
+
+<div class="shop-root" id="shopRoot">
+
+  <!-- ====== Header ====== -->
+  <header class="shop-header">
+    <a href="https://boabaseshisha.sakura.ne.jp/" class="shop-header__logo">
+      BoaBASE
+    </a>
+  </header>
+
+  <div class="shop-wrapper">
+
+    <!-- ====== Page Title ====== -->
+    <div class="shop-page-title shop-reveal">
+      <span class="shop-page-title__en">Online Shop</span>
+      <h1 class="shop-page-title__ja">BoaBASE Collection</h1>
+      <span class="shop-page-title__line"></span>
+    </div>
+
+    <!-- ====== Category Nav ====== -->
+    <nav class="shop-cat-nav shop-reveal">
+      <button class="shop-cat-btn active" data-cat="all">All</button>
+      <button class="shop-cat-btn" data-cat="shisha">Shisha Item</button>
+      <button class="shop-cat-btn" data-cat="original">Original Goods</button>
+      <button class="shop-cat-btn" data-cat="art">Art</button>
+      <button class="shop-cat-btn coming-soon" data-cat="antique">
+        Antique Goods
+        <span class="shop-cat-badge">準備中</span>
+      </button>
+    </nav>
+
+    <!-- ====== Product List ====== -->
+    <main class="shop-list" id="shopList">
+
+      <!-- 商品行ヘッダー -->
+      <div class="shop-list__header shop-reveal">
+        <span class="shop-list__col-cat">Category</span>
+        <span class="shop-list__col-name">Item</span>
+        <span class="shop-list__col-price">Price</span>
+        <span class="shop-list__col-arrow"></span>
+      </div>
+
+      <!-- ── Shisha Item ── -->
+      <a href="item.html?id=1" class="shop-row shop-reveal" data-cat="shisha">
+        <span class="shop-row__cat">Shisha Item</span>
+        <span class="shop-row__name">エジプト製クレイボウル <em>Pharaoh</em></span>
+        <span class="shop-row__price">¥ 3,800</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <a href="item.html?id=2" class="shop-row shop-reveal" data-cat="shisha">
+        <span class="shop-row__cat">Shisha Item</span>
+        <span class="shop-row__name">シリア製ガラスパイプ <em>Damascus</em></span>
+        <span class="shop-row__price">¥ 12,000</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <a href="item.html?id=3" class="shop-row shop-reveal is-sold" data-cat="shisha">
+        <span class="shop-row__cat">Shisha Item</span>
+        <span class="shop-row__name">トルコ製ステム <em>Bosphorus</em></span>
+        <span class="shop-row__price">¥ 8,500 <span class="shop-row__sold">Sold Out</span></span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <a href="item.html?id=4" class="shop-row shop-reveal" data-cat="shisha">
+        <span class="shop-row__cat">Shisha Item</span>
+        <span class="shop-row__name">真鍮製チャコールホルダー <em>Brass Handle</em></span>
+        <span class="shop-row__price">¥ 2,200</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <!-- ── Original Goods ── -->
+      <a href="item.html?id=5" class="shop-row shop-reveal" data-cat="original">
+        <span class="shop-row__cat">Original Goods</span>
+        <span class="shop-row__name">boabase Original T-shirt</span>
+        <span class="shop-row__price">¥ 5,500</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <a href="item.html?id=6" class="shop-row shop-reveal" data-cat="original">
+        <span class="shop-row__cat">Original Goods</span>
+        <span class="shop-row__name">boabase Sticker Pack</span>
+        <span class="shop-row__price">¥ 800</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <!-- ── Art ── -->
+      <a href="item.html?id=7" class="shop-row shop-reveal" data-cat="art">
+        <span class="shop-row__cat">Art</span>
+        <span class="shop-row__name">ポスタープリント <em>Smoke I</em></span>
+        <span class="shop-row__price">¥ 6,000</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+      <a href="item.html?id=8" class="shop-row shop-reveal" data-cat="art">
+        <span class="shop-row__cat">Art</span>
+        <span class="shop-row__name">ジクレープリント <em>Night Vessel</em></span>
+        <span class="shop-row__price">¥ 18,000</span>
+        <span class="shop-row__arrow">→</span>
+      </a>
+
+    </main><!-- /.shop-list -->
+  </div><!-- /.shop-wrapper -->
+
+  <!-- ====== Footer ====== -->
+  <footer class="shop-footer">
+    <p class="shop-footer__text">
+      &copy; boabase shisha —
+      <a href="https://boabaseshisha.sakura.ne.jp/" class="shop-footer__link">サイトに戻る</a>
+    </p>
+  </footer>
+
+</div><!-- /.shop-root -->
+
+<script src="shop.js"></script>
+</body>
+</html>

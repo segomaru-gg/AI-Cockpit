@@ -1,0 +1,12 @@
+id: "2026-q2-board-prep"
+title: "ボードメンバー就任への実績積み上げ"
+description: "業務委託として価値を証明し、2027年上半期のボードメンバー就任につなげる"
+quarter: "2026-Q2"
+status: "active"
+priority: 1
+deadline: "2027-06-30"
+phases:
+  - id: "p1-execution"
+    name: "業務委託フェーズ（実績構築）"
+    status: "active"
+    deadline: "2026-12-31"

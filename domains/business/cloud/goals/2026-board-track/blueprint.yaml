@@ -1,0 +1,21 @@
+id: "2026-board-track"
+title: "ボードメンバー参画トラック"
+description: "2027年3月末の参画可否判断に向け、業務理解・自律化・組織貢献の実績を積み上げる"
+status: "active"
+priority: 1
+decision_deadline: "2027-03-31"
+
+phases:
+  - id: "p1-foundation"
+    name: "Phase 1: 業務理解・基盤参加"
+    deadline: "2026-07-01"
+    status: "active"
+  - id: "p2-autonomy"
+    name: "Phase 2: 自律化・インターンマネジメント（群馬移動後）"
+    deadline: "2027-03-31"
+    status: "pending"
+
+success_criteria:
+  - "インターンを含めた組織運用において中核的役割を担える状態"
+  - "卸/許可/小売のオペレーション理解と改善提案実績"
+  - "CLOUDから月20万円の安定収入"

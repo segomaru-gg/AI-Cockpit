@@ -1,0 +1,44 @@
+id: cloud
+name: "CLOUD"
+category: "business"
+status: "active"
+priority: 1
+description: "シーシャ卸業（卸/許可/小売）。業務委託から経営参画へ移行するための検証フェーズ中。"
+
+engagement_type: "業務委託（移行・検証フェーズ）"
+next_milestone: "ボードメンバー参画可否の判断（2027年3月末）"
+
+# 稼働・収入設計
+resource:
+  monthly_hours_total: 160
+  cloud_allocation_pct: 65
+  cloud_hours: 100
+
+income:
+  cloud_monthly_target: 200000   # 月20万円基準
+  boabase_monthly: 50000         # 月5万円（別途）
+  supplement: "不足分はスポット労働で補完"
+
+# フェーズ設計
+phases:
+  - id: "p1-foundation"
+    name: "Phase 1: 業務理解・基盤参加"
+    description: "卸/許可/小売の基本業務参加、インターンとの連携強化"
+    status: "active"
+    start: "2026-04-13"
+    end: "2026-07-01"
+
+  - id: "p2-autonomy"
+    name: "Phase 2: 自律化・インターンマネジメント"
+    description: "群馬拠点移動後、業務労働から脱却。インターンのマネジメント・活用領域で価値発揮"
+    status: "pending"
+    start: "2026-07-01"
+    end: "2027-03-31"
+
+active_phase_id: "p1-foundation"
+active_goal_id: "2026-board-track"
+
+# 並行プロジェクト
+parallel:
+  - "Aeternum（個人事業）"
+  - "BoaBASE（月5万・別途契約）"

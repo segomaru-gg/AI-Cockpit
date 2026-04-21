@@ -6,7 +6,7 @@
 #
 # 何をするか:
 #   1. AI-Cockpit の .md/.yaml を SegoOS Vault に同期 (PC → 携帯)
-#   2. SegoOS の 00_Inbox を AI-Cockpit/inbox に同期 (携帯 → PC)
+#   2. SegoOS の 00_Inbox を AI-Cockpit/_intake に同期 (携帯 → PC)
 # =============================================================
 
 set -e
@@ -16,9 +16,13 @@ COCKPIT_DIR="$HOME/AI-Cockpit"
 VAULT_DIR="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/SegoOS"
 VAULT_COCKPIT="$VAULT_DIR/AI-Cockpit"
 INBOX_SRC="$VAULT_DIR/00_Inbox"
-INBOX_DST="$COCKPIT_DIR/inbox"
+INBOX_DST="$COCKPIT_DIR/_intake"
 
-echo "📊 Dashboard MD を生成中..."
+echo "📊 ルート DASHBOARD.md を更新中..."
+node "$COCKPIT_DIR/scripts/sync-dashboard.js"
+echo ""
+
+echo "📊 Cockpit Core Dashboard MD を生成中..."
 node "$COCKPIT_DIR/domains/cockpit-core/scripts/generate-dashboard-md.js"
 echo ""
 

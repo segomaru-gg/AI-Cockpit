@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- ラベル（launchctl で識別するID） -->
+    <key>Label</key>
+    <string>com.aicockpit.dashboard-watcher</string>
+
+    <!-- 実行コマンド: bash 経由で PATH を解決してから node を起動 -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin exec node /Users/ryosaigo/AI-Cockpit/scripts/watch-dashboard.js</string>
+    </array>
+
+    <!-- 作業ディレクトリ -->
+    <key>WorkingDirectory</key>
+    <string>/Users/ryosaigo/AI-Cockpit</string>
+
+    <!-- ログイン時に自動起動 -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- プロセスが死んだら自動再起動 -->
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- 再起動時の最小待機時間（秒）-->
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <!-- ログ出力先 -->
+    <key>StandardOutPath</key>
+    <string>/tmp/aicockpit-dashboard-watcher.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/aicockpit-dashboard-watcher-error.log</string>
+</dict>
+</plist>

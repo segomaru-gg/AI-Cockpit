@@ -1,7 +1,7 @@
 ---
 title: "Herman向け現状報告提出"
 phase: "Q1 Recovery"
-status: "pending"
+status: "done"
 priority: "high"
 deadline: "2026-03-15"
 order: 4

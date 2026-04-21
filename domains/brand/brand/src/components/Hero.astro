@@ -1,0 +1,166 @@
+---
+
+---
+
+<section class="hero-section">
+    <div class="hero-content container">
+        <div class="hero-badge">March 21, 2026 • boabase</div>
+        <h1 class="hero-title">
+            <span class="text-gradient">Aeternum</span><br />
+            <span class="subtitle">meaning to be inherited</span>
+        </h1>
+        <p class="hero-description">
+            価値や文化の文脈を掬い上げ、再解釈し、構造として整え、次の誰かへと渡していく。
+            <br />古物、音楽、空間、文章、車、思想。
+        </p>
+
+        <div class="scroll-indicator">
+            <span>Discover</span>
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-glow"></div>
+</section>
+
+<style>
+    .hero-section {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        font-size: 0.85rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent-primary);
+        animation: fadeInDown 1s ease-out;
+    }
+
+    .hero-title {
+        font-family: "Zen Old Mincho", serif;
+        font-size: clamp(3.5rem, 8vw, 7rem);
+        line-height: 1.1;
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .subtitle {
+        font-size: clamp(1.2rem, 3vw, 2rem);
+        color: var(--text-secondary);
+        font-family: "Inter", sans-serif;
+        font-weight: 300;
+    }
+
+    .hero-description {
+        max-width: 600px;
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        animation: fadeInUp 1s ease-out 0.4s both;
+    }
+
+    .bg-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60vw;
+        height: 60vw;
+        background: radial-gradient(
+            circle,
+            rgba(56, 90, 55, 0.05) 0%,
+            rgba(247, 245, 239, 0) 70%
+        );
+        border-radius: 50%;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .scroll-indicator {
+        position: absolute;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        animation: fadeInUp 1s ease-out 0.8s both;
+    }
+
+    .mouse {
+        width: 24px;
+        height: 36px;
+        border: 1px solid var(--text-muted);
+        border-radius: 12px;
+        position: relative;
+    }
+
+    .wheel {
+        width: 2px;
+        height: 6px;
+        background: var(--text-muted);
+        border-radius: 2px;
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: scroll 2s infinite cubic-bezier(0.15, 0.41, 0.69, 0.94);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes scroll {
+        0% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: translateX(-50%) translateY(15px);
+        }
+    }
+</style>

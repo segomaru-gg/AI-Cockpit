@@ -34,3 +34,10 @@ Thumbs.db
 
 # Local task tracking
 tasks/tmp/
+
+# Google Calendar 認証情報（絶対にコミットしない）
+scripts/calendar_credentials.json
+scripts/calendar_token.json
+
+# Discord Webhook URL（絶対にコミットしない）
+scripts/discord_config.py

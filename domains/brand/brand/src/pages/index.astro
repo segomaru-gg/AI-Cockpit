@@ -1,189 +1,143 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Products from "../components/Products.astro";
+import Philosophy from "../components/Philosophy.astro";
 ---
 
-<Layout>
-	<div class="portal-container">
-		<!-- Section 1: Identity -->
-		<section class="hero-section fade-in-up">
-			<div class="meaning-block">
-				<p class="meaning-intro zen-mincho">意味・構造・表現の循環</p>
-				<h1 class="portal-title zen-mincho">Aeternum</h1>
-				<p class="meaning-description">
-					文化を資産へ、感性を構造へ。<br>
-					私たちは「意味」を掘り起こし、持続可能な「表現」へと昇華させるデジタルデバイスです。
-				</p>
+<Layout title="Aeternum - meaning to be inherited">
+	<main>
+		<Hero />
+		<Products />
+		<Philosophy />
+	</main>
+
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-content">
+				<div class="brand">Aeternum</div>
+				<ul class="links">
+					<li>
+						<a
+							href="https://instagram.com"
+							target="_blank"
+							rel="noopener noreferrer">Instagram</a
+						>
+					</li>
+					<li>
+						<a
+							href="https://twitter.com"
+							target="_blank"
+							rel="noopener noreferrer">X (Twitter)</a
+						>
+					</li>
+					<li><a href="mailto:contact@example.com">Contact</a></li>
+				</ul>
 			</div>
-		</section>
-
-		<!-- Section 2: Pillars -->
-		<section class="pillars-grid">
-			<!-- Shushuan (EC) -->
-			<a href="/catalog" class="pillar-card fade-in-up" style="animation-delay: 0.2s;">
-				<div class="pillar-bg brand-bg"></div>
-				<div class="pillar-content">
-					<span class="pillar-label">Sensory EC</span>
-					<h2 class="zen-mincho">蒐集庵</h2>
-					<p>5感を繋ぎ、物語を収蔵する、現代のアーカイブショップ。</p>
-					<span class="pillar-cta">所望する →</span>
-				</div>
-			</a>
-
-			<!-- Nexus (B2B) -->
-			<a href="/nexus" class="pillar-card fade-in-up" style="animation-delay: 0.4s;">
-				<div class="pillar-bg nexus-bg"></div>
-				<div class="pillar-content">
-					<span class="pillar-label">B2B Strategy</span>
-					<h2 class="zen-mincho">NEXUS</h2>
-					<p>文化監督による経営サポート。暗黙知を構造化し、ブランドの背骨を作る。</p>
-					<span class="pillar-cta">共鳴する →</span>
-				</div>
-			</a>
-
-			<!-- Journal -->
-			<a href="/journal" class="pillar-card fade-in-up" style="animation-delay: 0.6s;">
-				<div class="pillar-bg journal-bg"></div>
-				<div class="pillar-content">
-					<span class="pillar-label">Cultural Insight</span>
-					<h2 class="zen-mincho">Journal</h2>
-					<p>日々の思索、文化の断片、構造への問い。Aeternum の筆致を綴る。</p>
-					<span class="pillar-cta">覧る →</span>
-				</div>
-			</a>
-		</section>
-	</div>
+			<div class="copyright">
+				&copy; {new Date().getFullYear()} Aeternum. All rights reserved.<br
+				/>
+				powered by Aeternum
+			</div>
+		</div>
+	</footer>
 </Layout>
 
 <style>
-	.portal-container {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 4rem 2rem;
+	main {
+		width: 100%;
 	}
 
-	.hero-section {
-		text-align: center;
-		margin-bottom: 8rem;
-		padding: 4rem 0;
+	.footer {
+		padding: 4rem 0 2rem;
+		border-top: 1px solid rgba(0, 0, 0, 0.05);
+		background: transparent;
 	}
 
-	.meaning-intro {
-		color: var(--accent-primary);
-		letter-spacing: 0.5em;
-		font-size: 0.9rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.portal-title {
-		font-size: 5rem;
-		letter-spacing: 0.1em;
-		margin-bottom: 2.5rem;
-		font-weight: 700;
-	}
-
-	.meaning-description {
-		max-width: 600px;
-		margin: 0 auto;
-		line-height: 2;
-		color: var(--text-muted);
-		letter-spacing: 0.05em;
-	}
-
-	.pillars-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+	.footer-content {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 3rem;
+		flex-wrap: wrap;
 		gap: 2rem;
 	}
 
-	.pillar-card {
-		position: relative;
-		height: 500px;
+	.brand {
+		font-family: "Outfit", sans-serif;
+		font-size: 1.5rem;
+		font-weight: 500;
+		letter-spacing: 0.05em;
+	}
+
+	.links {
 		display: flex;
-		align-items: flex-end;
-		text-decoration: none;
-		overflow: hidden;
-		border: 1px solid rgba(255, 255, 255, 0.05);
-		transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+		list-style: none;
+		gap: 2rem;
 	}
 
-	.pillar-bg {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 1;
-		transition: transform 0.8s;
-		opacity: 0.15;
-	}
-
-	.brand-bg { background: linear-gradient(135deg, var(--accent-primary), transparent); }
-	.nexus-bg { background: linear-gradient(135deg, #2c3e50, transparent); }
-	.journal-bg { background: linear-gradient(135deg, #7f8c8d, transparent); }
-
-	.pillar-content {
-		position: relative;
-		z-index: 2;
-		padding: 3rem;
-		width: 100%;
-	}
-
-	.pillar-label {
-		display: block;
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		letter-spacing: 0.2rem;
-		color: var(--accent-primary);
-		margin-bottom: 1rem;
-	}
-
-	.pillar-card h2 {
-		font-size: 2rem;
-		margin-bottom: 1.5rem;
-		color: var(--text-primary);
-	}
-
-	.pillar-card p {
-		font-size: 0.95rem;
+	.links a {
 		color: var(--text-muted);
-		line-height: 1.8;
-		margin-bottom: 2rem;
-		opacity: 0.8;
+		font-family: "Outfit", sans-serif;
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
-	.pillar-cta {
+	.copyright {
+		text-align: center;
+		color: var(--text-muted);
 		font-size: 0.8rem;
-		letter-spacing: 0.1rem;
-		color: var(--accent-primary);
+		opacity: 0.7;
+		margin-top: 2rem;
+		line-height: 1.8;
+	}
+
+	/* Simple reveal animation script placeholder */
+	.reveal {
 		opacity: 0;
-		transform: translateX(-10px);
-		transition: all 0.3s;
+		transform: translateY(30px);
+		transition: all 0.8s ease-out;
 	}
 
-	.pillar-card:hover {
-		border-color: var(--accent-primary);
-		background: rgba(46, 54, 48, 0.2);
-	}
-
-	.pillar-card:hover .pillar-bg {
-		transform: scale(1.1);
-		opacity: 0.3;
-	}
-
-	.pillar-card:hover .pillar-cta {
+	.reveal.active {
 		opacity: 1;
-		transform: translateX(0);
-	}
-
-	@media (max-width: 900px) {
-		.pillars-grid {
-			grid-template-columns: 1fr;
-		}
-		.portal-title {
-			font-size: 3rem;
-		}
-		.pillar-card {
-			height: 400px;
-		}
+		transform: translateY(0);
 	}
 </style>
+
+<script>
+	// Simple Intersection Observer setup for scroll animations
+	document.addEventListener("DOMContentLoaded", () => {
+		const revealElements = document.querySelectorAll(
+			".product-card, .info-card",
+		);
+
+		const revealObserver = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						const el = entry.target as HTMLElement;
+						el.classList.add("active");
+						el.style.opacity = "1";
+						el.style.transform = "translateY(0)";
+						revealObserver.unobserve(el);
+					}
+				});
+			},
+			{
+				threshold: 0.1,
+				rootMargin: "0px 0px -50px 0px",
+			},
+		);
+
+		// Apply initial styles for the observer to work
+		revealElements.forEach((element) => {
+			const el = element as HTMLElement;
+			el.style.opacity = "0";
+			el.style.transform = "translateY(30px)";
+			el.style.transition = "all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1)";
+			revealObserver.observe(el);
+		});
+	});
+</script>

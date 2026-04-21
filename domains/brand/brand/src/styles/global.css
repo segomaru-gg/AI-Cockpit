@@ -1,0 +1,77 @@
+:root {
+  /* --- Evergreen Palette from Archived Portfolio --- */
+  --bg-primary: #F7F5EF;
+  /* Ivory Paper (Background) */
+  --text-primary: #2B2B2B;
+  /* Charcoal Black (Text) */
+  --text-muted: #9A9A95;
+  /* Stone Gray (Auxiliary text) */
+  --accent-primary: #385A37;
+  /* Evergreen (Primary Accent) */
+  --accent-secondary: #6E4B3A;
+  /* Antique Umber */
+  --bg-secondary: #ffffff;
+  /* pure white for cards */
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Zen Old Mincho', serif;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.5s ease;
+}
+
+/* English headings can still maintain Outfit for structural contrast if desired, or Zen Old Mincho for uniformity */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-font {
+  font-family: 'Zen Old Mincho', serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+a:hover {
+  color: var(--accent-primary);
+}
+
+.glass-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+/* Utilities */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+.text-gradient {
+  /* Using the evergreen accent instead of a grey gradient */
+  color: var(--accent-primary);
+}

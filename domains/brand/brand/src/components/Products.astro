@@ -1,0 +1,144 @@
+---
+interface Item {
+  name: string;
+  price: string;
+  description: string;
+  image: string;
+}
+
+const products: Item[] = [
+  {
+    name: "Classic Overdyed Tee",
+    price: "¥8,500",
+    description: "深い文脈を纏う、独特の色落ち加工を施したシグネチャーTシャツ。",
+    image: "/placeholder-tee.jpg" // We will use a solid color placeholder via CSS temporarily
+  },
+  {
+    name: "Journal Vol.1",
+    price: "¥2,000",
+    description: "価値や文化の文脈を掬い上げ、再解釈した思想の記録。",
+    image: "/placeholder-book.jpg"
+  },
+  {
+    name: "Incense Set",
+    price: "¥4,200",
+    description: "空間の駆動原理を整え、意味を継承するための香り。",
+    image: "/placeholder-incense.jpg"
+  }
+];
+---
+
+<section class="products-section container" id="products">
+  <div class="section-header">
+    <h2 class="section-title">Collection</h2>
+    <p class="section-subtitle">March 21st Event Exclusives</p>
+  </div>
+
+  <div class="product-grid">
+    {products.map(product => (
+      <article class="product-card glass-panel">
+        <div class="product-image-container">
+          <!-- Placeholder styling instead of real image for now -->
+          <div class="image-placeholder"></div>
+        </div>
+        <div class="product-info">
+          <div class="product-header">
+            <h3 class="product-name">{product.name}</h3>
+            <span class="product-price">{product.price}</span>
+          </div>
+          <p class="product-description">{product.description}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .products-section {
+    padding: 8rem 5%;
+    min-height: 100vh;
+  }
+
+  .section-header {
+    margin-bottom: 4rem;
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-subtitle {
+    color: var(--text-secondary);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
+    border-radius: 1px; /* Sharper edges fit classic better */
+  }
+
+  .product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .product-image-container {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: #e8e6df;
+    overflow: hidden;
+  }
+
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, #e8e6df, #dcdad3);
+    transition: transform 0.6s ease;
+  }
+
+  .product-card:hover .image-placeholder {
+    transform: scale(1.05);
+  }
+
+  .product-info {
+    padding: 1.5rem;
+  }
+
+  .product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.8rem;
+    gap: 1rem;
+  }
+
+  .product-name {
+    font-size: 1.2rem;
+  }
+
+  .product-price {
+    font-family: 'Outfit', sans-serif;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .product-description {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+</style>

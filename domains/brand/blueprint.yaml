@@ -1,6 +1,8 @@
 id: aeternum
 name: "Aeternum Portfolio"
-active_goal_id: "2026-q1-portfolio"
+active_goal_id: 
+  - "2026-q1-portfolio"
+  - "2026-q1-concept-driven"
 last_update: "2026-02-18"
 category: "brand"
 status: "active"

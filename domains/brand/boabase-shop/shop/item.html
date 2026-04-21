@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="商品詳細 | boabase online shop">
+  <title>商品詳細 | SHOP | boabase</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shop.css">
+</head>
+<body>
+
+<div class="shop-root" id="shopRoot">
+
+  <!-- ====== Header ====== -->
+  <header class="shop-header">
+    <a href="https://boabaseshisha.sakura.ne.jp/" class="shop-header__logo">
+      BoaBASE
+    </a>
+  </header>
+
+  <div class="shop-wrapper">
+
+    <!-- ====== Detail Layout ====== -->
+    <article class="shop-detail">
+
+      <!-- 左: 商品画像 -->
+      <div class="shop-detail__image shop-reveal">
+        <img src="" id="itemImage" alt="商品画像">
+        <p class="shop-detail__image-caption">© boabase — 実物撮影</p>
+      </div>
+
+      <!-- 右: 商品情報 -->
+      <div class="shop-detail__info shop-reveal">
+
+        <p class="shop-detail__category" id="itemCategory"></p>
+        <h1 class="shop-detail__name" id="itemName"></h1>
+        <span class="shop-detail__name-en" id="itemNameEn"></span>
+
+        <p class="shop-detail__price" id="itemPrice"></p>
+
+        <div class="shop-detail__divider"></div>
+
+        <!-- 商品説明 -->
+        <p class="shop-detail__desc" id="itemDesc"></p>
+
+        <!-- 注意書き -->
+        <p class="shop-detail__notice">
+          ※ 古物・アンティーク品につき、個体ごとに色・形・質感に差異があります。<br>
+          ※ 画像はサンプルです。実際にお届けする商品とは若干異なる場合がございます。<br>
+          ※ 返品・交換は商品に重大な欠陥がある場合を除き、お受けできません。
+        </p>
+
+        <!-- 購入ボタン -->
+        <a href="#" class="shop-btn-buy" id="itemBuyBtn">購入する — Purchase</a>
+
+        <!-- 戻るリンク -->
+        <a href="index.html" class="shop-back">← 一覧にもどる</a>
+
+      </div>
+
+    </article>
+
+  </div><!-- /.shop-wrapper -->
+
+  <!-- ====== Footer ====== -->
+  <footer class="shop-footer">
+    <p class="shop-footer__text">
+      &copy; boabase shisha —
+      <a href="https://boabaseshisha.sakura.ne.jp/" class="shop-footer__link">サイトに戻る</a>
+    </p>
+  </footer>
+
+</div><!-- /.shop-root -->
+
+<script src="shop.js"></script>
+<script>
+  /* ==================================================
+     商品データ — index.html と完全同期
+     商品を追加する時は index.html と両方更新すること
+  ================================================== */
+  // ============================================================
+  //  商品データ
+  //  stripeUrl: Stripe ダッシュボードで作成した Payment Link の URL
+  //             例: "https://buy.stripe.com/xxxxxxxxxxxx"
+  //             未設定（null）の商品は購入ボタンが「準備中」になります
+  // ============================================================
+  const ITEMS = {
+    1: {
+      category: "Shisha Item",
+      name: "エジプト製クレイボウル",
+      nameEn: "Pharaoh",
+      price: "¥ 3,800",
+      image: "images/item-01.jpg",
+      desc: `カイロの職人が一点一点手びねりで成形したクレイボウル。素焼きの質感が熱を適度に拡散し、やわらかく長続きするスモークを生み出します。boabase での使用実績があり、フレーバーの輪郭がはっきり出やすいのが特徴。古物のため、表面に小さな釉薬のムラや焼きキズが見られる場合がございます。`,
+      stripeUrl: null, // TODO: Stripe Payment Link を貼る
+    },
+    2: {
+      category: "Shisha Item",
+      name: "シリア製ガラスパイプ",
+      nameEn: "Damascus",
+      price: "¥ 12,000",
+      image: "images/item-02.jpg",
+      desc: `ダマスカスの工房で吹きガラス技法により製作されたパイプ。手工芸の跡として内部に気泡や微細なねじれが見られ、それ自体が唯一性の証です。煙の通りが滑らかで、フレーバーをクリアに届けます。`,
+      stripeUrl: null,
+    },
+    3: {
+      category: "Shisha Item",
+      name: "トルコ製ステム",
+      nameEn: "Bosphorus",
+      price: "¥ 8,500",
+      image: "images/item-03.jpg",
+      desc: `イスタンブール近郊の職人工房による真鍮製ステム。細部の彫金が美しく、使い込むほどに金属が馴染み、独自の艶が生まれます。※ こちらの商品は現在在庫がございません。`,
+      soldOut: true,
+      stripeUrl: null,
+    },
+    4: {
+      category: "Shisha Item",
+      name: "真鍮製チャコールホルダー",
+      nameEn: "Brass Handle",
+      price: "¥ 2,200",
+      image: "images/item-04.jpg",
+      desc: `炭の扱いをよりスムーズにするための真鍮製ホルダー。長く使うと使用感が出て、オリエンタルな雰囲気を纏います。軽量で持ちやすく、初心者の方にもおすすめのアクセサリーです。`,
+      stripeUrl: null,
+    },
+    5: {
+      category: "Original Goods",
+      name: "boabase Original T-shirt",
+      nameEn: "Original",
+      price: "¥ 5,500",
+      image: "images/item-05.jpg",
+      desc: `boabase オリジナルTシャツ。シンプルなデザインで、日常使いしやすいアイテムです。素材：コットン100%。サイズ展開：S / M / L / XL。`,
+      stripeUrl: null,
+    },
+    6: {
+      category: "Original Goods",
+      name: "boabase Sticker Pack",
+      nameEn: "Sticker",
+      price: "¥ 800",
+      image: "images/item-06.jpg",
+      desc: `boabase オリジナルステッカーパック。水煙管・ロゴ・アートモチーフのステッカーが数枚セットになっています。ラップトップやシーシャケースに貼って、boabaseの空気を持ち歩いてください。`,
+      stripeUrl: null,
+    },
+    7: {
+      category: "Art",
+      name: "ポスタープリント",
+      nameEn: "Smoke I",
+      price: "¥ 6,000",
+      image: "images/item-07.jpg",
+      desc: `boabase の空間を切り取った写真ポスタープリント。A2サイズ、マット加工。額装なしでの販売となります。数量限定のプリントです。`,
+      stripeUrl: null,
+    },
+    8: {
+      category: "Art",
+      name: "ジクレープリント",
+      nameEn: "Night Vessel",
+      price: "¥ 18,000",
+      image: "images/item-08.jpg",
+      desc: `顔料インクジェット（ジクレー）による高品質プリント。発色と耐光性に優れており、長期にわたって作品の色を保ちます。A3サイズ、エディション番号入り。額装なしでの販売となります。`,
+      stripeUrl: null,
+    },
+  };
+
+  // URLパラメータからIDを取得して商品情報を書き換え
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const item = id ? ITEMS[id] : null;
+
+    if (!item) {
+      // 商品が見つからない場合は一覧へリダイレクト
+      window.location.href = 'index.html';
+      return;
+    }
+
+    const byId = (elId) => document.getElementById(elId);
+
+    if (byId('itemImage'))    { byId('itemImage').src = item.image; byId('itemImage').alt = item.name; }
+    if (byId('itemCategory')) byId('itemCategory').textContent = item.category;
+    if (byId('itemName'))     byId('itemName').textContent = item.name;
+    if (byId('itemNameEn'))   byId('itemNameEn').textContent = item.nameEn;
+    if (byId('itemPrice'))    byId('itemPrice').innerHTML = item.price + ' <small>（税込）</small>';
+    if (byId('itemDesc'))     byId('itemDesc').textContent = item.desc;
+
+    // ページタイトル更新
+    document.title = item.name + ' | SHOP | boabase';
+    document.querySelector('meta[name="description"]').content =
+      item.name + ' — boabase online shop';
+
+    // 購入ボタン処理 (Stripe Payment Links)
+    const buyBtn = byId('itemBuyBtn');
+    if (buyBtn) {
+      if (item.soldOut) {
+        // SOLD OUT
+        buyBtn.removeAttribute('href');
+        buyBtn.style.opacity = '0.35';
+        buyBtn.style.pointerEvents = 'none';
+        buyBtn.style.cursor = 'default';
+        buyBtn.textContent = 'Sold Out';
+      } else if (item.stripeUrl) {
+        // Stripe Payment Link が設定済み → StripeのCheckoutページへ
+        buyBtn.href = item.stripeUrl;
+        buyBtn.target = '_blank';
+        buyBtn.rel = 'noopener noreferrer';
+        buyBtn.textContent = '購入する — Purchase via Stripe';
+      } else {
+        // stripeUrl 未設定 → 準備中
+        buyBtn.removeAttribute('href');
+        buyBtn.style.opacity = '0.45';
+        buyBtn.style.pointerEvents = 'none';
+        buyBtn.style.cursor = 'default';
+        buyBtn.textContent = '購入ページ 準備中';
+      }
+    }
+  })();
+</script>
+</body>
+</html>

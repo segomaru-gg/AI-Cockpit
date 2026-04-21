@@ -1,6 +1,7 @@
 id: blueprint-cockpit
 name: "Cockpit Control"
-active_goal_id: "2026-q1-evolution"
+active_goal_id: 
+  - "2026-q1-evolution"
 last_update: "2026-02-18"
 category: "ops"
 status: "active"

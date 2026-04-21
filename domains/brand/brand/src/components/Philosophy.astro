@@ -1,0 +1,84 @@
+---
+
+---
+
+<section class="philosophy-section" id="philosophy">
+    <div class="content container">
+        <div class="glass-panel info-card">
+            <h2 class="title">ConceptDriven</h2>
+            <p class="text">
+                Aeternumの思想を実装する領域。<br />
+                組織や店舗、ブランドに内在する価値や文脈を再解釈し、<br />
+                文化・発信・空間・チーム設計として再構造化する。
+            </p>
+            <div class="divider"></div>
+            <p class="text">
+                単なる運営支援ではなく、<br />
+                「その企業は何によって動いているのか」という<br />
+                駆動原理を整える活動です。
+            </p>
+            <a href="#" class="action-link">Explore the Philosophy &rarr;</a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .philosophy-section {
+        padding: 8rem 0;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        background: linear-gradient(to bottom, transparent, rgba(5, 5, 5, 0.8));
+    }
+
+    .content {
+        display: flex;
+        justify-content: center;
+    }
+
+    .info-card {
+        max-width: 800px;
+        padding: 4rem;
+        text-align: center;
+        background: rgba(10, 10, 10, 0.4);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin-bottom: 2rem;
+        letter-spacing: 0.05em;
+    }
+
+    .text {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        line-height: 1.8;
+        font-weight: 300;
+    }
+
+    .divider {
+        width: 2px;
+        height: 40px;
+        background: var(--glass-border);
+        margin: 2rem auto;
+    }
+
+    .action-link {
+        display: inline-block;
+        margin-top: 3rem;
+        font-family: "Outfit", sans-serif;
+        color: var(--text-primary);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        border-bottom: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .action-link:hover {
+        border-bottom-color: var(--text-primary);
+        transform: translateX(5px);
+    }
+</style>

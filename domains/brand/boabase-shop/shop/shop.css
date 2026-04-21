@@ -1,0 +1,812 @@
+/* ============================================
+   boabase shop — shop.css
+   boabase.net の雰囲気に合わせたライトトーン
+   prefix: shop- で既存サイトと完全分離
+   ============================================ */
+
+/* ---------- Design Tokens ---------- */
+:root {
+  /* ── Light palette (boabase.net準拠) ── */
+  --shop-bg:           #f0ede6;        /* クリームオフホワイト */
+  --shop-bg-card:      #ebe8e0;        /* カード：少し深いクリーム */
+  --shop-bg-hover:     #e4e0d8;
+  --shop-border:       rgba(60, 50, 40, 0.10);
+  --shop-border-light: rgba(60, 50, 40, 0.18);
+
+  --shop-text:         #1c1a17;        /* リッチブラック */
+  --shop-text-muted:   rgba(28, 26, 23, 0.48);
+  --shop-text-faint:   rgba(28, 26, 23, 0.28);
+
+  --shop-accent:       #7a5c3a;        /* ウォームブラウン — 水煙管の木材色 */
+  --shop-accent-dim:   rgba(122, 92, 58, 0.12);
+
+  --shop-sold:         rgba(240, 237, 230, 0.80);
+
+  --shop-font-serif:   "Shippori Mincho", "Noto Serif JP", "Times New Roman", serif;
+  --shop-font-sans:    "Helvetica Neue", "Hiragino Kaku Gothic ProN", sans-serif;
+  --shop-radius:       2px;
+  --shop-transition:   0.55s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* ---------- Reset (scoped) ---------- */
+.shop-root *,
+.shop-root *::before,
+.shop-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- Root / Body ---------- */
+.shop-root {
+  background-color: var(--shop-bg);
+  color: var(--shop-text);
+  font-family: var(--shop-font-sans);
+  font-size: 14px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  opacity: 0;
+  transition: opacity 1.2s var(--shop-transition);
+}
+
+.shop-root.loaded {
+  opacity: 1;
+}
+
+/* ---------- Header ---------- */
+.shop-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(240, 237, 230, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--shop-border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shop-header__logo {
+  font-family: var(--shop-font-serif);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--shop-text);
+  text-decoration: none;
+  transition: color var(--shop-transition);
+}
+
+.shop-header__logo:hover {
+  color: var(--shop-accent);
+}
+
+/* ---------- Page Wrapper ---------- */
+.shop-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ---------- Category Nav ---------- */
+.shop-cat-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 56px;
+  border-bottom: 1px solid var(--shop-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.shop-cat-nav::-webkit-scrollbar { display: none; }
+
+.shop-cat-btn {
+  position: relative;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 14px 28px;
+  font-family: var(--shop-font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--shop-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--shop-transition);
+  flex-shrink: 0;
+}
+
+.shop-cat-btn::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: var(--shop-accent);
+  transform: scaleX(0);
+  transition: transform var(--shop-transition);
+}
+
+.shop-cat-btn:hover { color: var(--shop-text); }
+
+.shop-cat-btn.active {
+  color: var(--shop-accent);
+}
+.shop-cat-btn.active::after {
+  transform: scaleX(1);
+}
+
+/* 準備中 */
+.shop-cat-btn.coming-soon {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+.shop-cat-badge {
+  display: inline-block;
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  color: var(--shop-text-faint);
+  border: 1px solid var(--shop-border);
+  padding: 2px 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+/* グリッド空状態 */
+.shop-empty {
+  grid-column: 1 / -1;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.shop-empty__text {
+  font-size: 0.65rem;
+  letter-spacing: 0.45em;
+  color: var(--shop-text-faint);
+  text-transform: uppercase;
+}
+
+/* ---------- Page Title ---------- */
+.shop-page-title {
+  padding: 80px 0 40px;
+  text-align: center;
+}
+
+.shop-page-title__en {
+  font-family: var(--shop-font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.5em;
+  color: var(--shop-accent);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.shop-page-title__ja {
+  font-family: var(--shop-font-serif);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--shop-text);
+  line-height: 1.3;
+}
+
+.shop-page-title__line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--shop-accent), transparent);
+  margin: 24px auto 0;
+  display: block;
+  opacity: 0.5;
+}
+
+/* ---------- Product List (catalog style) ---------- */
+.shop-list {
+  margin-bottom: 100px;
+}
+
+.shop-list__header {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px 32px;
+  align-items: center;
+  padding: 0 24px 12px;
+  border-bottom: 1px solid var(--shop-border-light);
+  margin-bottom: 0;
+}
+
+.shop-list__col-cat,
+.shop-list__col-name,
+.shop-list__col-price,
+.shop-list__col-arrow {
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--shop-text-faint);
+}
+
+.shop-list__col-price { text-align: right; }
+
+/* ---------- Product Row ---------- */
+.shop-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 120px 32px;
+  align-items: center;
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--shop-border);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--shop-transition), padding-left var(--shop-transition);
+  position: relative;
+}
+
+.shop-row:hover {
+  background: var(--shop-bg-hover);
+  padding-left: 32px;
+}
+
+.shop-row__cat {
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--shop-text-faint);
+}
+
+.shop-row__name {
+  font-family: var(--shop-font-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--shop-text);
+}
+
+.shop-row__name em {
+  font-style: normal;
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: var(--shop-text-muted);
+  margin-left: 12px;
+}
+
+.shop-row__price {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--shop-accent);
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.shop-row__sold {
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--shop-text-faint);
+  border: 1px solid var(--shop-border-light);
+  padding: 2px 6px;
+}
+
+.shop-row__arrow {
+  font-size: 0.8rem;
+  color: var(--shop-text-faint);
+  text-align: right;
+  transition: color var(--shop-transition), transform var(--shop-transition);
+}
+
+.shop-row:hover .shop-row__arrow {
+  color: var(--shop-accent);
+  transform: translateX(4px);
+}
+
+/* SOLD OUT行 */
+.shop-row.is-sold .shop-row__name,
+.shop-row.is-sold .shop-row__price {
+  opacity: 0.45;
+}
+
+/* 空ステート */
+.shop-empty {
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.shop-empty__text {
+  font-size: 0.65rem;
+  letter-spacing: 0.45em;
+  color: var(--shop-text-faint);
+  text-transform: uppercase;
+}
+
+
+
+/* ---------- Product Card ---------- */
+.shop-card {
+  position: relative;
+  background: var(--shop-bg-card);
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--shop-transition);
+}
+
+.shop-card:hover {
+  background: var(--shop-bg-hover);
+}
+
+.shop-card:hover .shop-card__image img {
+  transform: scale(1.03);
+  filter: brightness(0.95);
+}
+
+.shop-card:hover .shop-card__detail {
+  color: var(--shop-accent);
+}
+
+/* Image wrapper */
+.shop-card__image {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #ddd8cf;
+}
+
+.shop-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--shop-transition), filter var(--shop-transition);
+  display: block;
+}
+
+/* NO IMAGE プレースホルダー */
+.shop-card__image.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-card__image.no-image::after {
+  content: "NO IMAGE";
+  position: absolute;
+  font-size: 0.6rem;
+  letter-spacing: 0.45em;
+  color: var(--shop-text-faint);
+  text-transform: uppercase;
+  border: 1px solid var(--shop-border-light);
+  padding: 8px 16px;
+}
+
+/* SOLD OUT overlay */
+.shop-card__sold {
+  position: absolute;
+  inset: 0;
+  background: var(--shop-sold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.shop-card__sold-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.5em;
+  color: rgba(28, 26, 23, 0.45);
+  text-transform: uppercase;
+  border: 1px solid rgba(28, 26, 23, 0.15);
+  padding: 8px 18px;
+}
+
+/* Card body */
+.shop-card__body {
+  padding: 20px 24px 24px;
+  border-top: 1px solid var(--shop-border);
+}
+
+.shop-card__name {
+  font-family: var(--shop-font-serif);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--shop-text);
+  margin-bottom: 6px;
+  line-height: 1.7;
+}
+
+.shop-card__price {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--shop-accent);
+  margin-bottom: 14px;
+}
+
+.shop-card__detail {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--shop-text-muted);
+  transition: color var(--shop-transition);
+}
+
+/* ---------- Detail Page ---------- */
+.shop-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  padding: 80px 0 120px;
+  align-items: start;
+}
+
+/* Image */
+.shop-detail__image {
+  position: sticky;
+  top: 100px;
+}
+
+.shop-detail__image img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  background: #ddd8cf;
+}
+
+/* 詳細ページ NO IMAGE */
+.shop-detail__image.no-image {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: #ddd8cf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-detail__image.no-image img {
+  display: none;
+}
+
+.shop-detail__image.no-image::after {
+  content: "NO IMAGE";
+  font-size: 0.6rem;
+  letter-spacing: 0.45em;
+  color: var(--shop-text-faint);
+  text-transform: uppercase;
+  border: 1px solid var(--shop-border-light);
+  padding: 8px 16px;
+}
+
+.shop-detail__image-caption {
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--shop-text-faint);
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Info */
+.shop-detail__info {
+  padding-top: 8px;
+}
+
+.shop-detail__category {
+  font-size: 0.65rem;
+  letter-spacing: 0.45em;
+  color: var(--shop-accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.shop-detail__name {
+  font-family: var(--shop-font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--shop-text);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.shop-detail__name-en {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--shop-text-muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 32px;
+}
+
+.shop-detail__price {
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  color: var(--shop-accent);
+  margin-bottom: 40px;
+}
+
+.shop-detail__price small {
+  font-size: 0.7rem;
+  color: var(--shop-text-faint);
+  letter-spacing: 0.15em;
+  margin-left: 6px;
+}
+
+/* Divider */
+.shop-detail__divider {
+  width: 100%;
+  height: 1px;
+  background: var(--shop-border);
+  margin: 32px 0;
+}
+
+/* Description */
+.shop-detail__desc {
+  font-size: 0.85rem;
+  line-height: 2.2;
+  letter-spacing: 0.06em;
+  color: rgba(28, 26, 23, 0.72);
+  margin-bottom: 28px;
+}
+
+/* Notice */
+.shop-detail__notice {
+  font-size: 0.72rem;
+  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--shop-text-faint);
+  border-left: 1px solid var(--shop-border-light);
+  padding-left: 16px;
+  margin-bottom: 40px;
+}
+
+/* Buy Button */
+.shop-btn-buy {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1px solid var(--shop-accent);
+  color: var(--shop-accent);
+  font-size: 0.7rem;
+  letter-spacing: 0.45em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--shop-transition), color var(--shop-transition);
+  margin-bottom: 16px;
+  font-family: var(--shop-font-sans);
+}
+
+.shop-btn-buy:hover {
+  background: var(--shop-accent);
+  color: var(--shop-bg);
+}
+
+/* Back link */
+.shop-back {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--shop-text-muted);
+  text-decoration: none;
+  transition: color var(--shop-transition);
+}
+
+.shop-back:hover {
+  color: var(--shop-accent);
+}
+
+/* ---------- Footer ---------- */
+.shop-footer {
+  border-top: 1px solid var(--shop-border);
+  padding: 40px;
+  text-align: center;
+  background: var(--shop-bg);
+}
+
+.shop-footer__text {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--shop-text-faint);
+  text-transform: uppercase;
+}
+
+.shop-footer__link {
+  color: var(--shop-text-muted);
+  text-decoration: none;
+  transition: color var(--shop-transition);
+}
+.shop-footer__link:hover {
+  color: var(--shop-accent);
+}
+
+/* ---------- Scroll Reveal ---------- */
+.shop-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.2s var(--shop-transition), transform 1.2s var(--shop-transition);
+}
+
+.shop-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Responsive ---------- */
+
+/* ── タブレット ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .shop-list__header,
+  .shop-row {
+    grid-template-columns: 140px 1fr 110px 28px;
+  }
+}
+
+/* ── スマホ ── */
+@media (max-width: 768px) {
+
+  /* Header */
+  .shop-header {
+    padding: 0 20px;
+    height: 56px;
+  }
+
+  .shop-header__logo {
+    font-size: 0.85rem;
+  }
+
+  /* Wrapper */
+  .shop-wrapper {
+    padding: 0 16px;
+  }
+
+  /* Page Title */
+  .shop-page-title {
+    padding: 48px 0 28px;
+  }
+
+  .shop-page-title__en {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+  }
+
+  .shop-page-title__ja {
+    font-size: 1.5rem;
+  }
+
+  .shop-page-title__line {
+    height: 28px;
+    margin-top: 18px;
+  }
+
+  /* Category Nav — 横スクロール */
+  .shop-cat-nav {
+    justify-content: flex-start;
+    margin-bottom: 32px;
+    padding: 0 4px;
+  }
+
+  .shop-cat-btn {
+    padding: 12px 18px;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+  }
+
+  /* ── 商品リスト（スマホ用2行レイアウト） ── */
+
+  /* ヘッダー行は非表示 */
+  .shop-list__header {
+    display: none;
+  }
+
+  /* 各商品行：2行レイアウトに変更 */
+  .shop-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    padding: 18px 16px;
+    column-gap: 12px;
+    row-gap: 4px;
+  }
+
+  .shop-row:hover {
+    padding-left: 20px;
+  }
+
+  /* 商品名 → 1行目左 */
+  .shop-row__name {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.95rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .shop-row__name em {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    margin-left: 0;
+  }
+
+  /* カテゴリ → 2行目左（小さく） */
+  .shop-row__cat {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+  }
+
+  /* 価格 → 1行目右 */
+  .shop-row__price {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+    font-size: 0.82rem;
+  }
+
+  /* 矢印 → 2行目右 */
+  .shop-row__arrow {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+    font-size: 0.7rem;
+  }
+
+  /* ── 商品詳細 ── */
+  .shop-detail {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 40px 0 80px;
+  }
+
+  .shop-detail__image {
+    position: static;
+  }
+
+  /* 画像エリアの縦長を抑制 */
+  .shop-detail__image img,
+  .shop-detail__image.no-image {
+    aspect-ratio: 4 / 3;
+  }
+
+  .shop-detail__name {
+    font-size: 1.4rem;
+  }
+
+  .shop-detail__price {
+    font-size: 1rem;
+  }
+
+  .shop-btn-buy {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    padding: 14px;
+  }
+
+  /* Footer */
+  .shop-footer {
+    padding: 32px 20px;
+  }
+
+  .shop-footer__text {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+  }
+}
+

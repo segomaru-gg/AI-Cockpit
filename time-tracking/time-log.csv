@@ -1,0 +1,3 @@
+date,start_time,end_time,duration_min,domain,task_file,task_title,notes
+2026-04-22,00:20,00:53,33,cockpit-core,domains/cockpit-core/goals/2026-q1-evolution/phases/p3-agent-orchestration/tasks/t5-agent-rules.md,時間計測システム構築,初期設定セッション
+2026-04-22,00:57,00:58,1,business,domains/business/cloud/goals/2026-board-track/phases/p1-foundation/tasks/2026-04-22-active.md,V-001 Vape webデザイン整理,-

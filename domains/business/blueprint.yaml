@@ -1,0 +1,8 @@
+id: business
+name: "Business"
+category: "business"
+status: "active"
+priority: 1
+description: "業務委託・事業参画・将来のボードメンバー就任を含むビジネス活動全般"
+projects:
+  - cloud

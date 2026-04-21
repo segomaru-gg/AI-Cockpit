@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.aicockpit.calendar-sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <!-- ↓ このパスは実際のAI-Cockpitフォルダのパスに変更すること -->
+        <string>/Users/YOURNAME/AI-Cockpit/scripts/sync_calendar.py</string>
+    </array>
+
+    <!-- Mac起動・ログイン時に1回実行 -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- ログファイル（任意） -->
+    <key>StandardOutPath</key>
+    <string>/tmp/aicockpit-calendar-sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/aicockpit-calendar-sync-error.log</string>
+</dict>
+</plist>

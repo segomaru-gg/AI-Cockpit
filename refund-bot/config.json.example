@@ -1,0 +1,22 @@
+{
+  "google": {
+    "spreadsheet_id": "ここにスプレッドシートIDを入力",
+    "sheet_name": "Sheet1",
+    "credentials_file": "credentials.json"
+  },
+  "discord": {
+    "webhook_url": "https://discord.com/api/webhooks/ここにWebhook URLを入力"
+  },
+  "columns": {
+    "date":     "申請日",
+    "customer": "顧客名",
+    "amount":   "金額",
+    "status":   "ステータス",
+    "notes":    "備考"
+  },
+  "statuses": {
+    "pending":    ["未対応", "新規"],
+    "processing": ["処理中", "確認中", "対応中"],
+    "delay_threshold_days": 3
+  }
+}

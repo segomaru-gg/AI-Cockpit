@@ -1,0 +1,8 @@
+goal_id: "2026-q1-concept-driven"
+goal_title: "ConceptDriven構想の構造確定とAeternum本業の思想深化"
+deadline: "2026-03-15"
+status: "active"
+current_phase_id: "p1-structure-extraction"
+goal_progress: 0
+phases:
+  - "p1-structure-extraction"

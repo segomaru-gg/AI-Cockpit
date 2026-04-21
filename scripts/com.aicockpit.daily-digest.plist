@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.aicockpit.daily-digest</string>
+
+    <!-- 毎日 08:00 に実行（前日〜27時までのレポートを投稿） -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>8</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>PATH=/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin /usr/bin/python3 /Users/ryosaigo/AI-Cockpit/scripts/daily-digest.py</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/ryosaigo/AI-Cockpit</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/aicockpit-daily-digest.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/aicockpit-daily-digest-error.log</string>
+</dict>
+</plist>

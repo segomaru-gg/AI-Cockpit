@@ -2,7 +2,7 @@
 # 四半期ごとのグローバル目標を定義
 # alignment: 各ドメインがこの目標にどの程度関連するか (1-5)
 
-current_quarter: "2026-Q1"
+current_quarter: "2026-Q2"
 
 goals:
   - id: "financial-independence"
@@ -11,10 +11,28 @@ goals:
     priority: 1
     alignment:
       consulting: 5
+      business: 5
       brand: 4
       cockpit-core: 2
       operations: 1
       learning: 3
+
+  - id: "cloud-board-track"
+    title: "CLOUDボードメンバー参画トラック"
+    description: |
+      2027年3月末の参画可否判断に向けた2フェーズ設計。
+      Phase1（〜7月）: 卸/許可/小売の業務理解・インターン連携。
+      Phase2（7月〜）: 群馬移動後の自律化・インターンマネジメント。
+      稼働: 月約100時間（全体の65%）、収入目標: 月20万円。
+    priority: 1
+    decision_deadline: "2027-03-31"
+    alignment:
+      business: 5
+      consulting: 2
+      brand: 2
+      cockpit-core: 1
+      operations: 2
+      learning: 2
 
   - id: "skill-growth"
     title: "英語力とプロフェッショナルスキルの向上"
@@ -23,6 +41,16 @@ goals:
     alignment:
       learning: 5
       consulting: 3
+      business: 3
       brand: 1
       cockpit-core: 1
       operations: 1
+
+# Phase Configuration (Slow & Live Migration)
+# 移行戦略のフェーズ定義
+migration_status:
+  current_phase: "Phase 1 - Manual Agent Simulation"
+  rules:
+    - "No structural changes during Phase 0/1."
+    - "Prompt simulation via manual execution."
+    - "Agents located in `agents/`."

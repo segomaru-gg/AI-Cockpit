@@ -20,7 +20,7 @@ AI-Cockpit/
 │   └── STRUCTURE.md         # This file
 ├── config/                  # Configuration files
 ├── scripts/                 # Sync & maintenance scripts
-├── inbox/                   # Mobile notes (from Obsidian)
+├── _intake/                 # Mobile notes (from Obsidian)
 └── cockpit.yaml             # Global goals & quarter config
 ```
 

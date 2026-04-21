@@ -1,0 +1,48 @@
+{
+    "target_project": "cockpit-core",
+    "goal": {
+        "title": "ConceptDriven構想の構造確定とAeternum本業の思想深化",
+        "deadline": "2026-03-15"
+    },
+    "phase": {
+        "name": "構造抽出と思想言語化フェーズ",
+        "deadline": "2026-03-05"
+    },
+    "tasks": [
+        {
+            "title": "Deep Researchソース精読（事例1〜3）",
+            "priority": "high",
+            "content": "立ち位置・審美構造・自己欺瞞回避構造を抽出しメモ化"
+        },
+        {
+            "title": "Deep Researchソース精読（事例4〜5）",
+            "priority": "high",
+            "content": "商業との緊張関係・創業者依存構造を抽出"
+        },
+        {
+            "title": "ConceptDriven構造マップ作成",
+            "priority": "high",
+            "content": "強化構造／回避構造／年2-3社モデル現実性を整理"
+        },
+        {
+            "title": "ConceptDrivenの提供範囲定義",
+            "priority": "high",
+            "content": "価値創出と価値調整の境界線を明文化"
+        },
+        {
+            "title": "Aeternum本業定義の再言語化",
+            "priority": "high",
+            "content": "古物商ではない本質的活動を一文で定義する"
+        },
+        {
+            "title": "Aeternumの収益構造仮説整理",
+            "priority": "medium",
+            "content": "審美活動とキャッシュポイントの緊張関係を整理"
+        },
+        {
+            "title": "ConceptDriven×Aeternum関係性整理",
+            "priority": "medium",
+            "content": "両者の独立性／従属性／統合可能性を構造化"
+        }
+    ]
+}
